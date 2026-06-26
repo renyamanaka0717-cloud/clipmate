@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function getListMember(listId) {
+      return get(/databases/$(database)/documents/listMembers/$(listId + '_' + request.auth.uid));
+    }
+
+    function isMemberOf(listId) {
+      return exists(/databases/$(database)/documents/listMembers/$(request.auth.uid + '_' + listId))
+        || isListMemberQuery(listId);
+    }
+
+    function isListMemberQuery(listId) {
+      return exists(/databases/$(database)/documents/listMembers/$(listId));
+    }
+
+    function memberRole(listId) {
+      let members = getAfter(/databases/$(database)/documents/listMembers/$(listId));
+      return members;
+    }
+
+    // Users: anyone authenticated can read; only the user can write their own
+    match /users/{userId} {
+      allow read: if isAuth();
+      allow create, update: if isAuth() && isUser(userId);
+    }
+
+    // Lists: readable by members; creatable by anyone authenticated
+    match /lists/{listId} {
+      allow read: if isAuth() && (
+        resource.data.ownerId == request.auth.uid ||
+        resource.data.visibility == 'shared'
+      );
+      allow create: if isAuth();
+      allow update: if isAuth() && resource.data.ownerId == request.auth.uid;
+      allow delete: if isAuth() && resource.data.ownerId == request.auth.uid;
+    }
+
+    // List Members
+    match /listMembers/{memberId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow update: if isAuth();
+      allow delete: if isAuth();
+    }
+
+    // Items: accessible by list members
+    match /items/{itemId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow update: if isAuth() && (
+        resource.data.addedBy == request.auth.uid ||
+        resource.data.listId != null
+      );
+      allow delete: if isAuth() && resource.data.addedBy == request.auth.uid;
+    }
+
+    // Comments: accessible by authenticated users
+    match /comments/{commentId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow delete: if isAuth() && resource.data.userId == request.auth.uid;
+    }
+
+    // Reactions
+    match /reactions/{reactionId} {
+      allow read: if isAuth();
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow delete: if isAuth() && resource.data.userId == request.auth.uid;
+    }
+
+    // FCM Tokens
+    match /fcmTokens/{tokenId} {
+      allow read, write: if isAuth() && resource.data.userId == request.auth.uid;
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Invitations
+    match /invitations/{invId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow delete: if isAuth() && resource.data.createdBy == request.auth.uid;
+    }
+  }
+}
