@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "app/api/metadata/route.ts": {
+      "maxDuration": 8
+    }
+  }
+}

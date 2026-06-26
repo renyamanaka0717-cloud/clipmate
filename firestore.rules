@@ -1,4 +1,9 @@
 rules_version = '2';
+
+// Spark plan (free): Auth + Firestore only
+// These rules keep read/write access scoped to authenticated users
+// and prevent unauthorized access without requiring paid features.
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -6,88 +11,60 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isUser(userId) {
-      return request.auth.uid == userId;
-    }
-
-    function getListMember(listId) {
-      return get(/databases/$(database)/documents/listMembers/$(listId + '_' + request.auth.uid));
-    }
-
-    function isMemberOf(listId) {
-      return exists(/databases/$(database)/documents/listMembers/$(request.auth.uid + '_' + listId))
-        || isListMemberQuery(listId);
-    }
-
-    function isListMemberQuery(listId) {
-      return exists(/databases/$(database)/documents/listMembers/$(listId));
-    }
-
-    function memberRole(listId) {
-      let members = getAfter(/databases/$(database)/documents/listMembers/$(listId));
-      return members;
-    }
-
-    // Users: anyone authenticated can read; only the user can write their own
+    // Users: authenticated read; own write only
     match /users/{userId} {
       allow read: if isAuth();
-      allow create, update: if isAuth() && isUser(userId);
+      allow write: if isAuth() && request.auth.uid == userId;
     }
 
-    // Lists: readable by members; creatable by anyone authenticated
+    // Lists: authenticated users can read and create;
+    // only the owner can update/delete
     match /lists/{listId} {
-      allow read: if isAuth() && (
-        resource.data.ownerId == request.auth.uid ||
-        resource.data.visibility == 'shared'
-      );
-      allow create: if isAuth();
+      allow read: if isAuth();
+      allow create: if isAuth() && request.resource.data.ownerId == request.auth.uid;
       allow update: if isAuth() && resource.data.ownerId == request.auth.uid;
       allow delete: if isAuth() && resource.data.ownerId == request.auth.uid;
     }
 
-    // List Members
+    // List Members: authenticated read/create;
+    // only member themselves or list owner can delete
     match /listMembers/{memberId} {
       allow read: if isAuth();
       allow create: if isAuth();
       allow update: if isAuth();
-      allow delete: if isAuth();
+      allow delete: if isAuth() && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.role == 'owner'
+      );
     }
 
-    // Items: accessible by list members
+    // Items: any authenticated user can read and create;
+    // only the adder can update/delete their own items
     match /items/{itemId} {
       allow read: if isAuth();
-      allow create: if isAuth();
-      allow update: if isAuth() && (
-        resource.data.addedBy == request.auth.uid ||
-        resource.data.listId != null
-      );
+      allow create: if isAuth() && request.resource.data.addedBy == request.auth.uid;
+      allow update: if isAuth() && resource.data.addedBy == request.auth.uid;
       allow delete: if isAuth() && resource.data.addedBy == request.auth.uid;
     }
 
-    // Comments: accessible by authenticated users
+    // Comments: authenticated read/create; own delete only
     match /comments/{commentId} {
       allow read: if isAuth();
-      allow create: if isAuth();
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
       allow delete: if isAuth() && resource.data.userId == request.auth.uid;
     }
 
-    // Reactions
+    // Reactions: authenticated read; own write/delete only
     match /reactions/{reactionId} {
       allow read: if isAuth();
       allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
       allow delete: if isAuth() && resource.data.userId == request.auth.uid;
     }
 
-    // FCM Tokens
-    match /fcmTokens/{tokenId} {
-      allow read, write: if isAuth() && resource.data.userId == request.auth.uid;
-      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
-    }
-
-    // Invitations
+    // Invitations: authenticated read; creator can delete
     match /invitations/{invId} {
       allow read: if isAuth();
-      allow create: if isAuth();
+      allow create: if isAuth() && request.resource.data.createdBy == request.auth.uid;
       allow delete: if isAuth() && resource.data.createdBy == request.auth.uid;
     }
   }

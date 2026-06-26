@@ -2,6 +2,9 @@ import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 
+// Spark plan (free): Auth + Firestore only
+// Storage / Functions / Messaging → not used in MVP
+
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'placeholder',
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'placeholder.firebaseapp.com',
@@ -30,17 +33,4 @@ export function getFirebaseAuth(): Auth {
 export function getFirebaseDb(): Firestore {
   if (!_db) _db = getFirestore(getApp());
   return _db;
-}
-
-export { getApp };
-
-export async function getMessagingInstance() {
-  if (typeof window === 'undefined') return null;
-  try {
-    const { getMessaging, isSupported } = await import('firebase/messaging');
-    if (await isSupported()) return getMessaging(getApp());
-  } catch {
-    // not supported
-  }
-  return null;
 }
