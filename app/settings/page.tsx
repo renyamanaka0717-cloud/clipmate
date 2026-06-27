@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import AppShell from '@/components/layout/AppShell';
 import { useAuthContext } from '@/lib/AuthContext';
+import { ChevronLeft } from 'lucide-react';
 
 export default function SettingsPage() {
   const { user, logout } = useAuthContext();
@@ -17,7 +18,7 @@ export default function SettingsPage() {
     <AppShell>
       <div className="px-4 pt-12 pb-4">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-lg">‹</button>
+          <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500"><ChevronLeft size={18} strokeWidth={2} /></button>
           <h1 className="text-lg font-bold text-gray-900">設定</h1>
         </div>
 

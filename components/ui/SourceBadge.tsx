@@ -1,24 +1,28 @@
+import { Link2 } from 'lucide-react';
+import {
+  SiInstagram,
+  SiTiktok,
+  SiThreads,
+  SiYoutube,
+  SiPinterest,
+  SiX,
+} from 'react-icons/si';
 import { SourceType } from '@/types';
 import { SOURCE_LABELS } from '@/lib/urlParser';
 
-const SOURCE_EMOJI: Record<SourceType, string> = {
-  instagram: '📸',
-  tiktok: '🎵',
-  threads: '🧵',
-  youtube: '▶️',
-  pinterest: '📌',
-  x: '✖️',
-  other: '🔗',
+type SnsConfig = {
+  Icon: React.ComponentType<{ size?: number; color?: string }>;
+  bg: string;
 };
 
-const SOURCE_CLASS: Record<SourceType, string> = {
-  instagram: 'bg-gradient-to-r from-pink-500 to-purple-500 text-white',
-  tiktok: 'bg-black text-white',
-  threads: 'bg-black text-white',
-  youtube: 'bg-red-600 text-white',
-  pinterest: 'bg-red-700 text-white',
-  x: 'bg-zinc-900 text-white',
-  other: 'bg-gray-400 text-white',
+const SNS: Record<SourceType, SnsConfig> = {
+  instagram: { Icon: SiInstagram, bg: '#C13584' },
+  tiktok:    { Icon: SiTiktok,    bg: '#010101' },
+  threads:   { Icon: SiThreads,   bg: '#101010' },
+  youtube:   { Icon: SiYoutube,   bg: '#FF0000' },
+  pinterest: { Icon: SiPinterest, bg: '#E60023' },
+  x:         { Icon: SiX,         bg: '#101010' },
+  other:     { Icon: Link2,       bg: '#9CA3AF' },
 };
 
 interface Props {
@@ -27,14 +31,17 @@ interface Props {
 }
 
 export default function SourceBadge({ type, size = 'sm' }: Props) {
+  const { Icon, bg } = SNS[type] ?? SNS.other;
+  const iconSize = size === 'sm' ? 10 : 12;
+  const padding = size === 'sm' ? 'px-2 py-0.5 text-[10px]' : 'px-3 py-1 text-xs';
+
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full font-medium ${SOURCE_CLASS[type]} ${
-        size === 'sm' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-3 py-1'
-      }`}
+      className={`inline-flex items-center gap-1.5 rounded-full font-medium text-white ${padding}`}
+      style={{ backgroundColor: bg }}
     >
-      <span>{SOURCE_EMOJI[type]}</span>
-      <span>{SOURCE_LABELS[type]}</span>
+      <Icon size={iconSize} color="#fff" />
+      {SOURCE_LABELS[type]}
     </span>
   );
 }

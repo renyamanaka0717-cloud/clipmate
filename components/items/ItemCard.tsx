@@ -3,6 +3,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Link2 } from 'lucide-react';
+import {
+  SiInstagram,
+  SiTiktok,
+  SiThreads,
+  SiYoutube,
+  SiPinterest,
+  SiX,
+} from 'react-icons/si';
 import { Item, SourceType } from '@/types';
 
 interface Props {
@@ -12,31 +21,29 @@ interface Props {
   listTitle?: string;
 }
 
-const SNS: Record<SourceType, { bg: string; symbol: string; gradient?: boolean }> = {
-  instagram: { bg: '',       symbol: '◻', gradient: true },
-  tiktok:    { bg: '#000',   symbol: '♪' },
-  youtube:   { bg: '#dc2626',symbol: '▶' },
-  threads:   { bg: '#1c1c1e',symbol: '@' },
-  pinterest: { bg: '#b91c1c',symbol: 'P' },
-  x:         { bg: '#18181b',symbol: 'X' },
-  other:     { bg: '#9ca3af',symbol: '↗' },
+type SnsConfig = {
+  Icon: React.ComponentType<{ size?: number; color?: string }>;
+  bg: string;
+};
+
+const SNS: Record<SourceType, SnsConfig> = {
+  instagram: { Icon: SiInstagram, bg: '#C13584' },
+  tiktok:    { Icon: SiTiktok,    bg: '#010101' },
+  threads:   { Icon: SiThreads,   bg: '#101010' },
+  youtube:   { Icon: SiYoutube,   bg: '#FF0000' },
+  pinterest: { Icon: SiPinterest, bg: '#E60023' },
+  x:         { Icon: SiX,         bg: '#101010' },
+  other:     { Icon: Link2,       bg: '#9CA3AF' },
 };
 
 function SnsOverlay({ type }: { type: SourceType }) {
-  const cfg = SNS[type] ?? SNS.other;
-  const style = cfg.gradient
-    ? {}
-    : { backgroundColor: cfg.bg };
+  const { Icon, bg } = SNS[type] ?? SNS.other;
   return (
     <div
-      className={`w-[18px] h-[18px] rounded-full flex items-center justify-center shadow-md ${
-        cfg.gradient ? 'bg-gradient-to-br from-pink-500 to-purple-600' : ''
-      }`}
-      style={style}
+      className="w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md"
+      style={{ backgroundColor: bg }}
     >
-      <span className="text-white font-bold leading-none" style={{ fontSize: 8 }}>
-        {cfg.symbol}
-      </span>
+      <Icon size={11} color="#fff" />
     </div>
   );
 }
@@ -52,7 +59,7 @@ export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
           isNew ? 'border-pink-200 ring-2 ring-pink-100' : 'border-gray-100'
         }`}
       >
-        {/* Thumbnail — stretches to card height, min 80px */}
+        {/* Thumbnail */}
         <div className="relative flex-shrink-0 w-[80px] self-stretch min-h-[80px] rounded-xl overflow-hidden bg-gray-100">
           {hasThumbnail ? (
             <Image
@@ -68,7 +75,6 @@ export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
               <span className="text-3xl opacity-15">📎</span>
             </div>
           )}
-          {/* SNS icon — top-left overlay */}
           <div className="absolute top-1 left-1">
             <SnsOverlay type={item.sourceType} />
           </div>
@@ -76,7 +82,6 @@ export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
 
         {/* Content */}
         <div className="flex-1 min-w-0 flex flex-col gap-1 py-0.5">
-          {/* Title + Date */}
           <div className="flex items-start gap-2">
             <p className="flex-1 text-[13px] font-semibold text-gray-900 leading-snug line-clamp-2">
               {item.title || item.url}
@@ -86,21 +91,18 @@ export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
             </span>
           </div>
 
-          {/* Location */}
           {item.locationName && (
             <p className="text-[11px] text-gray-500 line-clamp-1">
               📍 {item.locationName}
             </p>
           )}
 
-          {/* Memo */}
           {item.memo && (
             <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">
               💬 {item.memo}
             </p>
           )}
 
-          {/* Tags */}
           {item.tags && item.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-auto pt-0.5">
               {item.tags.slice(0, 4).map((tag) => (
@@ -115,7 +117,6 @@ export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
             </div>
           )}
 
-          {/* List name (optional) */}
           {showList && listTitle && (
             <p className="text-[10px] text-gray-400 mt-auto">📋 {listTitle}</p>
           )}

@@ -10,6 +10,7 @@ import { getListById, subscribeItems, subscribeChildLists, isListMember, deleteL
 import { useAuthContext } from '@/lib/AuthContext';
 import { List, Item } from '@/types';
 import Link from 'next/link';
+import { ChevronLeft, ChevronRight, MoreHorizontal, Plus } from 'lucide-react';
 
 const COLOR_BG: Record<string, string> = {
   pink: 'from-pink-400 to-pink-300',
@@ -21,14 +22,6 @@ const COLOR_BG: Record<string, string> = {
   red: 'from-red-400 to-red-300',
   gray: 'from-gray-400 to-gray-300',
 };
-
-function ChevronRight() {
-  return (
-    <svg className="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-    </svg>
-  );
-}
 
 export default function ListDetailPage() {
   const { listId } = useParams<{ listId: string }>();
@@ -91,7 +84,7 @@ export default function ListDetailPage() {
             onClick={() => list?.parentId ? router.push(`/lists/${list.parentId}`) : router.push('/home')}
             className="w-8 h-8 flex items-center justify-center rounded-full bg-white/30 text-white"
           >
-            ‹
+            <ChevronLeft size={20} strokeWidth={2} />
           </button>
           <div className="flex-1" />
           <div className="relative">
@@ -99,7 +92,7 @@ export default function ListDetailPage() {
               onClick={() => setShowMenu(!showMenu)}
               className="w-8 h-8 flex items-center justify-center rounded-full bg-white/30 text-white"
             >
-              ⋯
+              <MoreHorizontal size={18} strokeWidth={2} />
             </button>
             {showMenu && (
               <div className="absolute right-0 top-10 bg-white rounded-2xl shadow-lg border border-gray-100 py-2 min-w-[140px] z-10">
@@ -139,7 +132,7 @@ export default function ListDetailPage() {
                       >
                         <span className="text-2xl w-9 text-center flex-shrink-0">{child.emoji}</span>
                         <span className="flex-1 font-medium text-gray-900 text-sm">{child.title}</span>
-                        <ChevronRight />
+                        <ChevronRight size={16} className="text-gray-300 flex-shrink-0" strokeWidth={2.5} />
                       </button>
                       {i < childLists.length - 1 && <div className="ml-16 h-px bg-gray-100" />}
                     </div>
@@ -152,7 +145,7 @@ export default function ListDetailPage() {
                 onClick={() => setShowCreateSub(true)}
                 className="flex items-center gap-2 text-sm text-pink-500 font-medium px-1 py-1"
               >
-                <span className="w-6 h-6 flex items-center justify-center rounded-full bg-pink-100 text-xs">+</span>
+                <span className="w-6 h-6 flex items-center justify-center rounded-full bg-pink-100 text-pink-500"><Plus size={13} strokeWidth={2.5} /></span>
                 サブリストを追加
               </button>
             )}
