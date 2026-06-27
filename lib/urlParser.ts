@@ -6,7 +6,7 @@ export function detectSourceType(url: string): SourceType {
     const host = u.hostname.replace('www.', '');
     if (host.includes('instagram.com')) return 'instagram';
     if (host.includes('tiktok.com')) return 'tiktok';
-    if (host.includes('threads.net')) return 'threads';
+    if (host.includes('threads.net') || host.includes('threads.com')) return 'threads';
     if (host.includes('youtube.com') || host.includes('youtu.be')) return 'youtube';
     if (host.includes('pinterest.com') || host.includes('pin.it')) return 'pinterest';
     if (host.includes('twitter.com') || host.includes('x.com')) return 'x';

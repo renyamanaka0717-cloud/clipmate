@@ -165,8 +165,12 @@ export async function isListMember(listId: string, userId: string): Promise<List
 // ---- Items ----
 
 export async function addItem(data: Omit<Item, 'id' | 'createdAt' | 'updatedAt'>) {
+  // Firestore rejects undefined values — strip them before writing
+  const clean = Object.fromEntries(
+    Object.entries(data).filter(([, v]) => v !== undefined)
+  );
   const ref = await addDoc(collection(db(), 'items'), {
-    ...data,
+    ...clean,
     tags: data.tags || [],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
