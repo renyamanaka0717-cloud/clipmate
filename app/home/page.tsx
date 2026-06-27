@@ -3,13 +3,20 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '@/components/layout/AppShell';
-import ListCard from '@/components/lists/ListCard';
 import ItemCard from '@/components/items/ItemCard';
 import AddItemModal from '@/components/items/AddItemModal';
 import CreateListModal from '@/components/lists/CreateListModal';
 import { subscribeLists, getRecentItems } from '@/lib/firebase/firestore';
 import { useAuthContext } from '@/lib/AuthContext';
 import { List, Item } from '@/types';
+
+function ChevronRight() {
+  return (
+    <svg className="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+    </svg>
+  );
+}
 
 export default function HomePage() {
   const { user } = useAuthContext();
@@ -22,34 +29,27 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!user) return;
-    const unsub = subscribeLists(user.uid, (l) => setLists(l));
-    return unsub;
+    return subscribeLists(user.uid, setLists);
   }, [user]);
 
   const loadRecent = useCallback(async () => {
     if (!user) return;
-    const items = await getRecentItems(user.uid, 20);
-    setRecentItems(items);
+    setRecentItems(await getRecentItems(user.uid, 10));
   }, [user]);
 
   useEffect(() => { loadRecent(); }, [loadRecent]);
 
-  function handleItemAdded() {
-    loadRecent();
-  }
-
-  const myLists = lists.filter((l) => l.ownerId === user?.uid);
-  const sharedLists = lists.filter((l) => l.ownerId !== user?.uid || l.visibility === 'shared');
+  const topLevelLists = lists.filter((l) => !l.parentId);
+  const myLists = topLevelLists.filter((l) => l.ownerId === user?.uid);
+  const sharedLists = topLevelLists.filter((l) => l.ownerId !== user?.uid);
 
   return (
     <AppShell>
-      <div className="px-4 pt-12 pb-4">
+      <div className="px-4 pt-12 pb-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              📎 ClipMate
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900">📎 ClipMate</h1>
             <p className="text-xs text-gray-400 mt-0.5">お気に入りを、一緒に。</p>
           </div>
           <button
@@ -74,41 +74,57 @@ export default function HomePage() {
           「前に見たあの投稿...」を探す
         </button>
 
-        {/* My Lists */}
+        {/* My Lists - Explorer style */}
         <section className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold text-gray-700">マイリスト</h2>
-            <button
-              onClick={() => setShowCreateList(true)}
-              className="text-xs text-pink-500 font-medium"
-            >
-              + 新規作成
-            </button>
-          </div>
-          {myLists.length === 0 ? (
-            <button
-              onClick={() => setShowCreateList(true)}
-              className="w-full py-8 border-2 border-dashed border-gray-200 rounded-3xl text-gray-400 text-sm flex flex-col items-center gap-2"
-            >
-              <span className="text-3xl">📋</span>
-              リストを作成してみよう
-            </button>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {myLists.map((list) => (
-                <ListCard key={list.id} list={list} />
-              ))}
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1 mb-2">マイリスト</p>
+          <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+            {myLists.length === 0 && (
+              <div className="px-4 py-5 text-center text-gray-400 text-sm">
+                リストがまだありません
+              </div>
+            )}
+            {myLists.map((list, i) => (
+              <div key={list.id}>
+                <button
+                  onClick={() => router.push(`/lists/${list.id}`)}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-gray-50 transition text-left"
+                >
+                  <span className="text-2xl w-9 text-center flex-shrink-0">{list.emoji}</span>
+                  <span className="flex-1 font-medium text-gray-900 text-sm">{list.title}</span>
+                  <ChevronRight />
+                </button>
+                {i < myLists.length - 1 && <div className="ml-16 h-px bg-gray-100" />}
+              </div>
+            ))}
+            <div className={myLists.length > 0 ? 'border-t border-gray-100' : ''}>
+              <button
+                onClick={() => setShowCreateList(true)}
+                className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-pink-50 transition text-left"
+              >
+                <span className="w-9 h-9 flex items-center justify-center rounded-full bg-pink-100 text-pink-500 text-lg flex-shrink-0">+</span>
+                <span className="text-sm font-medium text-pink-500">新しいリストを作成</span>
+              </button>
             </div>
-          )}
+          </div>
         </section>
 
         {/* Shared Lists */}
-        {sharedLists.filter(l => l.ownerId !== user?.uid).length > 0 && (
+        {sharedLists.length > 0 && (
           <section className="mb-6">
-            <h2 className="text-sm font-bold text-gray-700 mb-3">共有されているリスト</h2>
-            <div className="grid grid-cols-2 gap-3">
-              {sharedLists.filter(l => l.ownerId !== user?.uid).map((list) => (
-                <ListCard key={list.id} list={list} />
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1 mb-2">共有リスト</p>
+            <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+              {sharedLists.map((list, i) => (
+                <div key={list.id}>
+                  <button
+                    onClick={() => router.push(`/lists/${list.id}`)}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-gray-50 transition text-left"
+                  >
+                    <span className="text-2xl w-9 text-center flex-shrink-0">{list.emoji}</span>
+                    <span className="flex-1 font-medium text-gray-900 text-sm">{list.title}</span>
+                    <ChevronRight />
+                  </button>
+                  {i < sharedLists.length - 1 && <div className="ml-16 h-px bg-gray-100" />}
+                </div>
               ))}
             </div>
           </section>
@@ -117,9 +133,9 @@ export default function HomePage() {
         {/* Recent Items */}
         {recentItems.length > 0 && (
           <section>
-            <h2 className="text-sm font-bold text-gray-700 mb-3">最近追加した投稿</h2>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1 mb-2">最近追加した投稿</p>
             <div className="grid grid-cols-1 gap-3">
-              {recentItems.slice(0, 6).map((item) => (
+              {recentItems.map((item) => (
                 <ItemCard key={item.id} item={item} isNew={newItemIds.has(item.id)} showList />
               ))}
             </div>
@@ -139,7 +155,7 @@ export default function HomePage() {
         <AddItemModal
           lists={lists}
           onClose={() => setShowAddItem(false)}
-          onAdded={handleItemAdded}
+          onAdded={loadRecent}
         />
       )}
       {showCreateList && (

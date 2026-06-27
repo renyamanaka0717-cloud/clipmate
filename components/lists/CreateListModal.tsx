@@ -19,9 +19,10 @@ const COLOR_OPTIONS = [
 interface Props {
   onClose: () => void;
   onCreated?: (listId: string) => void;
+  parentId?: string | null;
 }
 
-export default function CreateListModal({ onClose, onCreated }: Props) {
+export default function CreateListModal({ onClose, onCreated, parentId }: Props) {
   const { user } = useAuthContext();
   const [title, setTitle] = useState('');
   const [emoji, setEmoji] = useState('❤️');
@@ -41,6 +42,7 @@ export default function CreateListModal({ onClose, onCreated }: Props) {
         color,
         ownerId: user.uid,
         visibility,
+        parentId: parentId ?? null,
       });
       onCreated?.(id);
       onClose();

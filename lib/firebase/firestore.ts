@@ -112,6 +112,18 @@ export function subscribeLists(userId: string, callback: (lists: List[]) => void
   });
 }
 
+export function subscribeChildLists(parentId: string, callback: (lists: List[]) => void) {
+  const q = query(collection(db(), 'lists'), where('parentId', '==', parentId));
+  return onSnapshot(q, (snap) => {
+    const lists = snap.docs.map((d) => {
+      const data = d.data();
+      return { id: d.id, ...data, createdAt: toDate(data.createdAt), updatedAt: toDate(data.updatedAt) } as List;
+    });
+    lists.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    callback(lists);
+  });
+}
+
 export async function getListById(listId: string): Promise<List | null> {
   const snap = await getDoc(doc(db(), 'lists', listId));
   if (!snap.exists()) return null;

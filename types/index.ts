@@ -37,6 +37,7 @@ export interface List {
   color: string;
   ownerId: string;
   visibility: ListVisibility;
+  parentId?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

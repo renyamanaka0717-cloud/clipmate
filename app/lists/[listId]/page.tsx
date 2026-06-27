@@ -5,7 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import AppShell from '@/components/layout/AppShell';
 import ItemCard from '@/components/items/ItemCard';
 import AddItemModal from '@/components/items/AddItemModal';
-import { getListById, subscribeItems, isListMember, deleteList } from '@/lib/firebase/firestore';
+import CreateListModal from '@/components/lists/CreateListModal';
+import { getListById, subscribeItems, subscribeChildLists, isListMember, deleteList } from '@/lib/firebase/firestore';
 import { useAuthContext } from '@/lib/AuthContext';
 import { List, Item } from '@/types';
 import Link from 'next/link';
@@ -21,15 +22,25 @@ const COLOR_BG: Record<string, string> = {
   gray: 'from-gray-400 to-gray-300',
 };
 
+function ChevronRight() {
+  return (
+    <svg className="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+    </svg>
+  );
+}
+
 export default function ListDetailPage() {
   const { listId } = useParams<{ listId: string }>();
   const { user } = useAuthContext();
   const router = useRouter();
   const [list, setList] = useState<List | null>(null);
   const [items, setItems] = useState<Item[]>([]);
+  const [childLists, setChildLists] = useState<List[]>([]);
   const [newIds, setNewIds] = useState<Set<string>>(new Set());
   const [role, setRole] = useState<string | null>(null);
   const [showAddItem, setShowAddItem] = useState(false);
+  const [showCreateSub, setShowCreateSub] = useState(false);
   const [filterSource, setFilterSource] = useState('');
   const [showMenu, setShowMenu] = useState(false);
 
@@ -56,6 +67,10 @@ export default function ListDetailPage() {
     return unsub;
   }, [listId]);
 
+  useEffect(() => {
+    return subscribeChildLists(listId, setChildLists);
+  }, [listId]);
+
   const canEdit = role === 'owner' || role === 'editor';
   const filtered = filterSource ? items.filter((i) => i.sourceType === filterSource) : items;
   const sources = [...new Set(items.map((i) => i.sourceType))];
@@ -64,7 +79,7 @@ export default function ListDetailPage() {
   async function handleDelete() {
     if (!confirm('このリストを削除しますか？')) return;
     await deleteList(listId);
-    router.replace('/home');
+    router.replace(list?.parentId ? `/lists/${list.parentId}` : '/home');
   }
 
   return (
@@ -72,7 +87,10 @@ export default function ListDetailPage() {
       {/* Header */}
       <div className={`bg-gradient-to-r ${gradient} px-4 pt-12 pb-6`}>
         <div className="flex items-center gap-3 mb-3">
-          <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/30 text-white">
+          <button
+            onClick={() => list?.parentId ? router.push(`/lists/${list.parentId}`) : router.push('/home')}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/30 text-white"
+          >
             ‹
           </button>
           <div className="flex-1" />
@@ -98,12 +116,49 @@ export default function ListDetailPage() {
           <span className="text-4xl">{list?.emoji || '📋'}</span>
           <div>
             <h1 className="text-xl font-bold text-white">{list?.title || ''}</h1>
-            <p className="text-white/70 text-xs mt-0.5">{items.length}件の投稿</p>
+            <p className="text-white/70 text-xs mt-0.5">
+              {childLists.length > 0 && `${childLists.length}件のリスト・`}{items.length}件の投稿
+            </p>
           </div>
         </div>
       </div>
 
       <div className="px-4 pt-4">
+        {/* Child Lists */}
+        {(childLists.length > 0 || canEdit) && (
+          <div className="mb-5">
+            {childLists.length > 0 && (
+              <>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1 mb-2">リスト</p>
+                <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm mb-3">
+                  {childLists.map((child, i) => (
+                    <div key={child.id}>
+                      <button
+                        onClick={() => router.push(`/lists/${child.id}`)}
+                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-gray-50 transition text-left"
+                      >
+                        <span className="text-2xl w-9 text-center flex-shrink-0">{child.emoji}</span>
+                        <span className="flex-1 font-medium text-gray-900 text-sm">{child.title}</span>
+                        <ChevronRight />
+                      </button>
+                      {i < childLists.length - 1 && <div className="ml-16 h-px bg-gray-100" />}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+            {canEdit && (
+              <button
+                onClick={() => setShowCreateSub(true)}
+                className="flex items-center gap-2 text-sm text-pink-500 font-medium px-1 py-1"
+              >
+                <span className="w-6 h-6 flex items-center justify-center rounded-full bg-pink-100 text-xs">+</span>
+                サブリストを追加
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Source filter */}
         {sources.length > 1 && (
           <div className="flex gap-2 mb-4 overflow-x-auto pb-1 scrollbar-none">
@@ -130,19 +185,24 @@ export default function ListDetailPage() {
         )}
 
         {/* Items */}
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
+        {filtered.length === 0 && childLists.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
             <span className="text-5xl mb-4">✨</span>
-            <p className="text-gray-500 font-medium">まだ投稿がありません</p>
-            <p className="text-gray-400 text-sm mt-1">右下のボタンから追加してみよう</p>
+            <p className="text-gray-500 font-medium">まだ何もありません</p>
+            <p className="text-gray-400 text-sm mt-1">右下のボタンから投稿を追加しよう</p>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-3">
-            {filtered.map((item) => (
-              <ItemCard key={item.id} item={item} isNew={newIds.has(item.id)} />
-            ))}
-          </div>
-        )}
+        ) : filtered.length > 0 ? (
+          <>
+            {(childLists.length > 0 || canEdit) && (
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1 mb-2">投稿</p>
+            )}
+            <div className="grid grid-cols-1 gap-3">
+              {filtered.map((item) => (
+                <ItemCard key={item.id} item={item} isNew={newIds.has(item.id)} />
+              ))}
+            </div>
+          </>
+        ) : null}
       </div>
 
       {/* FAB */}
@@ -160,6 +220,13 @@ export default function ListDetailPage() {
           lists={[list]}
           defaultListId={listId}
           onClose={() => setShowAddItem(false)}
+        />
+      )}
+
+      {showCreateSub && (
+        <CreateListModal
+          parentId={listId}
+          onClose={() => setShowCreateSub(false)}
         />
       )}
 
