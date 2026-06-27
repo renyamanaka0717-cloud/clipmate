@@ -28,10 +28,12 @@ export default function CreateListModal({ onClose, onCreated }: Props) {
   const [color, setColor] = useState('pink');
   const [visibility, setVisibility] = useState<'private' | 'shared'>('private');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   async function handleCreate() {
     if (!title.trim() || !user) return;
     setSaving(true);
+    setError('');
     try {
       const id = await createList({
         title: title.trim(),
@@ -42,8 +44,10 @@ export default function CreateListModal({ onClose, onCreated }: Props) {
       });
       onCreated?.(id);
       onClose();
-    } catch (e) {
+    } catch (e: unknown) {
       console.error(e);
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg || 'エラーが発生しました。もう一度試してください。');
     } finally {
       setSaving(false);
     }
@@ -135,6 +139,9 @@ export default function CreateListModal({ onClose, onCreated }: Props) {
               </div>
             </div>
 
+            {error && (
+              <p className="text-xs text-red-500 bg-red-50 rounded-xl px-3 py-2">{error}</p>
+            )}
             <button
               onClick={handleCreate}
               disabled={!title.trim() || saving}
