@@ -194,16 +194,15 @@ export async function getItem(itemId: string): Promise<Item | null> {
 }
 
 export function subscribeItems(listId: string, callback: (items: Item[]) => void) {
-  const q = query(
-    collection(db(), 'items'),
-    where('listId', '==', listId),
-    orderBy('createdAt', 'desc')
-  );
+  // No orderBy to avoid requiring a composite index — sort in memory instead
+  const q = query(collection(db(), 'items'), where('listId', '==', listId));
   return onSnapshot(q, (snap) => {
-    callback(snap.docs.map((d) => {
+    const items = snap.docs.map((d) => {
       const data = d.data();
       return { id: d.id, ...data, createdAt: toDate(data.createdAt), updatedAt: toDate(data.updatedAt) } as Item;
-    }));
+    });
+    items.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    callback(items);
   });
 }
 
@@ -220,9 +219,7 @@ export async function getRecentItems(userId: string, limitCount = 20): Promise<I
   for (const chunk of chunks) {
     const q = query(
       collection(db(), 'items'),
-      where('listId', 'in', chunk),
-      orderBy('createdAt', 'desc'),
-      limit(limitCount)
+      where('listId', 'in', chunk)
     );
     const snap = await getDocs(q);
     snap.docs.forEach((d) => {
@@ -249,16 +246,14 @@ export async function deleteComment(commentId: string) {
 }
 
 export function subscribeComments(itemId: string, callback: (comments: Comment[]) => void) {
-  const q = query(
-    collection(db(), 'comments'),
-    where('itemId', '==', itemId),
-    orderBy('createdAt', 'asc')
-  );
+  const q = query(collection(db(), 'comments'), where('itemId', '==', itemId));
   return onSnapshot(q, (snap) => {
-    callback(snap.docs.map((d) => {
+    const comments = snap.docs.map((d) => {
       const data = d.data();
       return { id: d.id, ...data, createdAt: toDate(data.createdAt) } as Comment;
-    }));
+    });
+    comments.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    callback(comments);
   });
 }
 
