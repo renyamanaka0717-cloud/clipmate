@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Link2, Paperclip, MapPin, MessageCircle, Layers } from 'lucide-react';
+import { Link2, Paperclip, MapPin, Layers } from 'lucide-react';
 import {
   SiInstagram,
   SiTiktok,
@@ -91,17 +91,16 @@ export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
             </span>
           </div>
 
+          {(item.description || item.memo) && (
+            <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">
+              {item.memo || item.description}
+            </p>
+          )}
+
           {item.locationName && (
             <p className="flex items-center gap-1 text-[11px] text-gray-500 line-clamp-1">
               <MapPin size={10} strokeWidth={2} className="flex-shrink-0" />
               {item.locationName}
-            </p>
-          )}
-
-          {item.memo && (
-            <p className="flex items-start gap-1 text-[11px] text-gray-400 line-clamp-2 leading-relaxed">
-              <MessageCircle size={10} strokeWidth={2} className="flex-shrink-0 mt-px" />
-              {item.memo}
             </p>
           )}
 

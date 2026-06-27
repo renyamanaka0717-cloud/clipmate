@@ -143,7 +143,17 @@ export default function ItemDetailPage() {
           <span>{item.createdAt.toLocaleDateString('ja-JP')}</span>
         </div>
 
-        {/* Memo */}
+        {/* Description (auto-fetched) */}
+        {item.description && (
+          <div className="bg-gray-50 rounded-2xl p-3 mb-3">
+            <p className="text-xs text-gray-400 font-medium mb-1">
+              {item.siteName ? item.siteName : 'サイトの説明'}
+            </p>
+            <p className="text-sm text-gray-600 leading-relaxed">{item.description}</p>
+          </div>
+        )}
+
+        {/* Memo (user notes) */}
         {item.memo && (
           <div className="bg-gray-50 rounded-2xl p-3 mb-4">
             <p className="text-xs text-gray-500 font-medium mb-1">メモ</p>

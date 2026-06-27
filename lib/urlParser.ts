@@ -63,28 +63,33 @@ function getDirectThumbnailUrl(url: string, sourceType: SourceType): string | nu
   return null;
 }
 
-export async function fetchUrlMetadata(url: string): Promise<{
+export type UrlMetadata = {
   title?: string;
+  description?: string;
   thumbnailUrl?: string;
+  siteName?: string;
+  resolvedUrl?: string;
   sourceType: SourceType;
-}> {
+};
+
+export async function fetchUrlMetadata(url: string): Promise<UrlMetadata> {
   const sourceType = detectSourceType(url);
-
-  // YouTube: generate thumbnail URL directly without hitting the API
   const directThumb = getDirectThumbnailUrl(url, sourceType);
-  if (directThumb) return { thumbnailUrl: directThumb, sourceType };
 
-  // Other sites: try OGP scraping via API route
   try {
     const res = await fetch(`/api/metadata?url=${encodeURIComponent(url)}`);
     if (res.ok) {
       const data = await res.json();
       return {
         title: data.title || undefined,
-        thumbnailUrl: data.image || undefined,
+        description: data.description || undefined,
+        thumbnailUrl: directThumb || data.image || undefined,
+        siteName: data.siteName || undefined,
+        resolvedUrl: data.resolvedUrl || undefined,
         sourceType,
       };
     }
   } catch { /* ignore */ }
-  return { sourceType };
+
+  return { thumbnailUrl: directThumb || undefined, sourceType };
 }

@@ -1,16 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { X, Search as SearchIcon } from 'lucide-react';
+import {
+  SiInstagram, SiTiktok, SiThreads, SiYoutube, SiPinterest, SiX,
+} from 'react-icons/si';
+import { Link2 } from 'lucide-react';
 import { useAuthContext } from '@/lib/AuthContext';
 import { addItem } from '@/lib/firebase/firestore';
-import { fetchUrlMetadata, detectSourceType } from '@/lib/urlParser';
-import { List, Tag, ItemStatus } from '@/types';
+import { fetchUrlMetadata, detectSourceType, UrlMetadata } from '@/lib/urlParser';
+import { List, Tag, ItemStatus, SourceType } from '@/types';
 import { STATUS_LABEL } from '@/components/ui/StatusBadge';
 
 const STATUS_OPTIONS = Object.entries(STATUS_LABEL) as [ItemStatus, string][];
-
 const PRESET_COLORS = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#a855f7','#ec4899','#6b7280'];
+
+type SnsConfig = { Icon: React.ComponentType<{ size?: number; color?: string }>; color: string };
+const SNS: Record<SourceType, SnsConfig> = {
+  instagram: { Icon: SiInstagram, color: '#C13584' },
+  tiktok:    { Icon: SiTiktok,    color: '#010101' },
+  threads:   { Icon: SiThreads,   color: '#101010' },
+  youtube:   { Icon: SiYoutube,   color: '#FF0000' },
+  pinterest: { Icon: SiPinterest, color: '#E60023' },
+  x:         { Icon: SiX,         color: '#101010' },
+  other:     { Icon: Link2,        color: '#9CA3AF' },
+};
 
 interface Props {
   lists: List[];
@@ -29,22 +44,35 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
   const [tags, setTags] = useState<Tag[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [tagColor, setTagColor] = useState('#ef4444');
-  const [fetching, setFetching] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [thumbnailUrl, setThumbnailUrl] = useState('');
-  const [sourceType, setSourceType] = useState(detectSourceType(''));
+
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewMeta, setPreviewMeta] = useState<UrlMetadata | null>(null);
+  const [previewImgError, setPreviewImgError] = useState(false);
+  const titleAutoFilledRef = useRef(false);
 
   useEffect(() => {
-    if (!url) return;
-    setSourceType(detectSourceType(url));
+    if (!url) {
+      setPreviewLoading(false);
+      setPreviewMeta(null);
+      titleAutoFilledRef.current = false;
+      return;
+    }
+
+    setPreviewLoading(true);
+    setPreviewImgError(false);
+
     const timer = setTimeout(async () => {
-      setFetching(true);
       const meta = await fetchUrlMetadata(url);
-      if (meta.thumbnailUrl) setThumbnailUrl(meta.thumbnailUrl);
-      setSourceType(meta.sourceType);
-      setFetching(false);
-    }, 800);
+      setPreviewMeta(meta);
+      if (meta.title && !titleAutoFilledRef.current) {
+        setTitle(meta.title);
+        titleAutoFilledRef.current = true;
+      }
+      setPreviewLoading(false);
+    }, 700);
+
     return () => clearTimeout(timer);
   }, [url]);
 
@@ -55,10 +83,6 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
     setTagInput('');
   }
 
-  function removeTag(name: string) {
-    setTags(tags.filter((t) => t.name !== name));
-  }
-
   async function handleSave() {
     if (!url || !selectedListId || !user) return;
     setSaving(true);
@@ -67,9 +91,12 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
       await addItem({
         listId: selectedListId,
         url,
-        sourceType,
+        sourceType: previewMeta?.sourceType ?? detectSourceType(url),
         title: title || url,
-        thumbnailUrl: thumbnailUrl || undefined,
+        description: previewMeta?.description || undefined,
+        thumbnailUrl: previewMeta?.thumbnailUrl || undefined,
+        siteName: previewMeta?.siteName || undefined,
+        resolvedUrl: previewMeta?.resolvedUrl || undefined,
         memo: memo || undefined,
         tags,
         status: status || undefined,
@@ -86,10 +113,13 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
     }
   }
 
+  const sourceType = previewMeta?.sourceType ?? detectSourceType(url);
+  const { Icon: SnsIcon, color: snsColor } = SNS[sourceType] ?? SNS.other;
+  const hasPreviewContent = previewMeta && (previewMeta.title || previewMeta.description || previewMeta.thumbnailUrl || previewMeta.siteName);
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-lg rounded-t-3xl shadow-xl max-h-[90vh] overflow-y-auto">
-        {/* Handle */}
+      <div className="bg-white w-full max-w-lg rounded-t-3xl shadow-xl max-h-[92vh] overflow-y-auto">
         <div className="flex justify-center pt-3 pb-1">
           <div className="w-10 h-1 bg-gray-200 rounded-full" />
         </div>
@@ -110,30 +140,96 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
                 <input
                   type="url"
                   value={url}
-                  onChange={(e) => setUrl(e.target.value)}
+                  onChange={(e) => {
+                    setUrl(e.target.value);
+                    titleAutoFilledRef.current = false;
+                    setTitle('');
+                  }}
                   placeholder="https://..."
                   className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition pr-10"
                 />
-                {fetching && (
-                  <div className="absolute right-3 top-3 w-5 h-5 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
+                {previewLoading && (
+                  <div className="absolute right-3 top-3.5 w-4 h-4 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
                 )}
               </div>
-              {sourceType && url && (
+              {url && !previewLoading && previewMeta && (
                 <p className="flex items-center gap-1 text-[10px] text-gray-400 mt-1 px-1">
                   <SearchIcon size={9} strokeWidth={2} />
-                  {sourceType === 'other' ? 'その他' : sourceType} として保存されます
+                  {previewMeta.sourceType === 'other' ? 'その他' : previewMeta.sourceType} として保存されます
                 </p>
               )}
             </div>
 
+            {/* URL Preview Card */}
+            {url && (previewLoading || hasPreviewContent) && (
+              <div className="rounded-2xl border border-gray-100 overflow-hidden bg-gray-50">
+                {previewLoading ? (
+                  <div className="flex gap-3 p-3">
+                    <div className="w-[72px] h-[72px] bg-gray-200 rounded-xl animate-pulse flex-shrink-0" />
+                    <div className="flex-1 py-1 space-y-2">
+                      <div className="h-2 bg-gray-200 rounded-full animate-pulse w-1/3" />
+                      <div className="h-3 bg-gray-200 rounded-full animate-pulse w-5/6" />
+                      <div className="h-2.5 bg-gray-200 rounded-full animate-pulse w-full" />
+                      <div className="h-2.5 bg-gray-200 rounded-full animate-pulse w-3/4" />
+                    </div>
+                  </div>
+                ) : previewMeta && (
+                  <div className="flex gap-3 p-3">
+                    {/* Thumbnail */}
+                    <div className="relative w-[72px] h-[72px] flex-shrink-0 rounded-xl overflow-hidden bg-gray-200">
+                      {previewMeta.thumbnailUrl && !previewImgError ? (
+                        <Image
+                          src={previewMeta.thumbnailUrl}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          onError={() => setPreviewImgError(true)}
+                          unoptimized
+                        />
+                      ) : (
+                        <div
+                          className="absolute inset-0 flex items-center justify-center"
+                          style={{ backgroundColor: snsColor + '18' }}
+                        >
+                          <SnsIcon size={28} color={snsColor} />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Text */}
+                    <div className="flex-1 min-w-0 py-0.5">
+                      {previewMeta.siteName && (
+                        <p className="text-[10px] text-gray-400 mb-0.5 truncate">{previewMeta.siteName}</p>
+                      )}
+                      <p className="text-xs font-semibold text-gray-900 line-clamp-2 leading-snug">
+                        {previewMeta.title || url}
+                      </p>
+                      {previewMeta.description && (
+                        <p className="text-[10px] text-gray-500 line-clamp-2 mt-0.5 leading-relaxed">
+                          {previewMeta.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Title */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">タイトル</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                タイトル
+                {titleAutoFilledRef.current && title && (
+                  <span className="ml-1.5 text-[10px] text-pink-400 font-normal">自動取得</span>
+                )}
+              </label>
               <input
                 type="text"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="自動取得または手入力"
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                }}
+                placeholder="タイトルを入力（空欄でURLを保存）"
                 className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition"
               />
             </div>
@@ -147,7 +243,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
                 className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition"
               >
                 {lists.map((l) => (
-                  <option key={l.id} value={l.id}>{l.emoji} {l.title}</option>
+                  <option key={l.id} value={l.id}>{l.title}</option>
                 ))}
               </select>
             </div>
@@ -176,7 +272,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
               <textarea
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
-                placeholder="メモを入力..."
+                placeholder="自分だけのメモを追加..."
                 rows={2}
                 className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition resize-none"
               />
@@ -212,7 +308,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
                       key={tag.name}
                       className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1 cursor-pointer"
                       style={{ backgroundColor: tag.color + '20', color: tag.color }}
-                      onClick={() => removeTag(tag.name)}
+                      onClick={() => setTags(tags.filter((t) => t.name !== tag.name))}
                     >
                       #{tag.name} <X size={9} strokeWidth={2.5} />
                     </span>
@@ -221,7 +317,6 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
               )}
             </div>
 
-            {/* Save button */}
             {error && (
               <p className="text-xs text-red-500 bg-red-50 rounded-xl px-3 py-2">{error}</p>
             )}

@@ -62,7 +62,10 @@ export interface Item {
   url: string;
   sourceType: SourceType;
   title: string;
+  description?: string;
   thumbnailUrl?: string;
+  siteName?: string;
+  resolvedUrl?: string;
   memo?: string;
   tags: Tag[];
   status?: ItemStatus;
