@@ -30,6 +30,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
   const [tagColor, setTagColor] = useState('#ef4444');
   const [fetching, setFetching] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [sourceType, setSourceType] = useState(detectSourceType(''));
 
@@ -39,7 +40,6 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
     const timer = setTimeout(async () => {
       setFetching(true);
       const meta = await fetchUrlMetadata(url);
-      if (meta.title && !title) setTitle(meta.title);
       if (meta.thumbnailUrl) setThumbnailUrl(meta.thumbnailUrl);
       setSourceType(meta.sourceType);
       setFetching(false);
@@ -61,6 +61,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
   async function handleSave() {
     if (!url || !selectedListId || !user) return;
     setSaving(true);
+    setError('');
     try {
       await addItem({
         listId: selectedListId,
@@ -75,8 +76,10 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
       });
       onAdded?.();
       onClose();
-    } catch (e) {
+    } catch (e: unknown) {
       console.error(e);
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg || 'エラーが発生しました。もう一度試してください。');
     } finally {
       setSaving(false);
     }
@@ -215,6 +218,9 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
             </div>
 
             {/* Save button */}
+            {error && (
+              <p className="text-xs text-red-500 bg-red-50 rounded-xl px-3 py-2">{error}</p>
+            )}
             <button
               onClick={handleSave}
               disabled={!url || !selectedListId || saving}
