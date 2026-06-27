@@ -46,20 +46,45 @@ export const SOURCE_BG: Record<SourceType, string> = {
   other: 'bg-gray-500',
 };
 
+function getYouTubeVideoId(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes('youtube.com')) return u.searchParams.get('v');
+    if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0];
+  } catch { /* ignore */ }
+  return null;
+}
+
+function getDirectThumbnailUrl(url: string, sourceType: SourceType): string | null {
+  if (sourceType === 'youtube') {
+    const id = getYouTubeVideoId(url);
+    if (id) return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+  }
+  return null;
+}
+
 export async function fetchUrlMetadata(url: string): Promise<{
   title?: string;
   thumbnailUrl?: string;
   sourceType: SourceType;
 }> {
   const sourceType = detectSourceType(url);
+
+  // YouTube: generate thumbnail URL directly without hitting the API
+  const directThumb = getDirectThumbnailUrl(url, sourceType);
+  if (directThumb) return { thumbnailUrl: directThumb, sourceType };
+
+  // Other sites: try OGP scraping via API route
   try {
     const res = await fetch(`/api/metadata?url=${encodeURIComponent(url)}`);
     if (res.ok) {
       const data = await res.json();
-      return { title: data.title, thumbnailUrl: data.image, sourceType };
+      return {
+        title: data.title || undefined,
+        thumbnailUrl: data.image || undefined,
+        sourceType,
+      };
     }
-  } catch {
-    // ignore
-  }
+  } catch { /* ignore */ }
   return { sourceType };
 }
