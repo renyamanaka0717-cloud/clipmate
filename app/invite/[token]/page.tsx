@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { Paperclip, Clock, XCircle, CheckCircle, Pencil, Eye } from 'lucide-react';
 import { getInvitationByToken, getListById, acceptInvitation } from '@/lib/firebase/firestore';
 import { useAuthContext } from '@/lib/AuthContext';
 import { Invitation, List } from '@/types';
+import ListIcon from '@/components/lists/ListIcon';
 
 export default function InvitePage() {
   const { token } = useParams<{ token: string }>();
@@ -48,9 +50,16 @@ export default function InvitePage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50 flex flex-col items-center justify-center px-4">
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">📎</div>
+          <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center shadow-sm">
+            <Paperclip size={32} className="text-white" strokeWidth={2} />
+          </div>
           <h1 className="text-2xl font-bold text-gray-900">ClipMateに招待されました</h1>
-          {list && <p className="text-gray-500 mt-2">「{list.emoji} {list.title}」に参加する</p>}
+          {list && (
+            <p className="flex items-center justify-center gap-1.5 text-gray-500 mt-2">
+              <ListIcon name={list.emoji} size={14} className="text-gray-500" />
+              {list.title}に参加する
+            </p>
+          )}
         </div>
         <button
           onClick={() => router.push(`/login?redirect=/invite/${token}`)}
@@ -67,31 +76,36 @@ export default function InvitePage() {
       <div className="bg-white rounded-3xl shadow-sm p-8 w-full max-w-sm text-center">
         {status === 'expired' && (
           <>
-            <div className="text-4xl mb-3">⏰</div>
+            <Clock size={40} className="text-amber-400 mx-auto mb-3" strokeWidth={1.5} />
             <h2 className="text-lg font-bold text-gray-900 mb-2">招待リンクの期限切れ</h2>
             <p className="text-sm text-gray-500">このリンクはすでに有効期限が切れています。招待者に新しいリンクを作成してもらってください。</p>
           </>
         )}
         {status === 'error' && (
           <>
-            <div className="text-4xl mb-3">❌</div>
+            <XCircle size={40} className="text-red-400 mx-auto mb-3" strokeWidth={1.5} />
             <h2 className="text-lg font-bold text-gray-900 mb-2">無効なリンク</h2>
             <p className="text-sm text-gray-500">このリンクは無効です。</p>
           </>
         )}
         {status === 'joined' && (
           <>
-            <div className="text-4xl mb-3">✅</div>
+            <CheckCircle size={40} className="text-green-500 mx-auto mb-3" strokeWidth={1.5} />
             <h2 className="text-lg font-bold text-gray-900 mb-2">参加しました！</h2>
             <p className="text-sm text-gray-500">リストに移動します...</p>
           </>
         )}
         {status === 'ready' && invitation && list && (
           <>
-            <div className="text-5xl mb-3">{list.emoji}</div>
+            <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gray-100 flex items-center justify-center">
+              <ListIcon name={list.emoji} size={32} className="text-gray-700" />
+            </div>
             <h2 className="text-lg font-bold text-gray-900 mb-1">「{list.title}」に招待されています</h2>
-            <p className="text-sm text-gray-500 mb-6">
-              {invitation.role === 'editor' ? '✏️ 編集権限' : '👁 閲覧権限'}で参加できます
+            <p className="flex items-center justify-center gap-1.5 text-sm text-gray-500 mb-6">
+              {invitation.role === 'editor'
+                ? <><Pencil size={13} strokeWidth={2} /> 編集権限</>
+                : <><Eye size={13} strokeWidth={2} /> 閲覧権限</>
+              }で参加できます
             </p>
             <button
               onClick={handleJoin}

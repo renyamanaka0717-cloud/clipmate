@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import AppShell from '@/components/layout/AppShell';
 import { useAuthContext } from '@/lib/AuthContext';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Bell, Moon, Share2 } from 'lucide-react';
 
 export default function SettingsPage() {
   const { user, logout } = useAuthContext();
@@ -54,9 +54,16 @@ export default function SettingsPage() {
         {/* Coming soon */}
         <div className="bg-gray-50 rounded-3xl p-5 border border-dashed border-gray-200 mb-4">
           <p className="text-xs font-medium text-gray-400 mb-2">近日公開予定</p>
-          <ul className="space-y-1.5">
-            {['🔔 プッシュ通知', '🌙 ダークモード', '📤 PWA対応'].map((f) => (
-              <li key={f} className="text-sm text-gray-400">{f}</li>
+          <ul className="space-y-2">
+            {[
+              { Icon: Bell,   label: 'プッシュ通知' },
+              { Icon: Moon,   label: 'ダークモード' },
+              { Icon: Share2, label: 'PWA対応' },
+            ].map(({ Icon, label }) => (
+              <li key={label} className="flex items-center gap-2 text-sm text-gray-400">
+                <Icon size={14} strokeWidth={1.8} />
+                {label}
+              </li>
             ))}
           </ul>
         </div>

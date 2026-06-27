@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { ChevronLeft, Paperclip, User, MapPin, Map, Pencil, Heart, ThumbsUp, Eye, Sparkles, ExternalLink } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import SourceBadge from '@/components/ui/SourceBadge';
 import StatusBadge, { STATUS_LABEL } from '@/components/ui/StatusBadge';
+import ListIcon from '@/components/lists/ListIcon';
 import {
   getItem, getListById, deleteItem, updateItem,
   subscribeComments, addComment, deleteComment,
@@ -16,6 +18,20 @@ import { useUser } from '@/hooks/useUsers';
 import { Item, List, Comment, Reaction, ReactionType, ItemStatus } from '@/types';
 
 const REACTION_TYPES: ReactionType[] = ['❤️', '👍', '👀', '行きたい', '気になる'];
+
+type ReactionConfig = {
+  Icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
+  label: string;
+  activeClass: string;
+};
+
+const REACTION_CONFIG: Record<ReactionType, ReactionConfig> = {
+  '❤️':    { Icon: Heart,     label: 'いいね',  activeClass: 'bg-red-100 border-red-300 text-red-600' },
+  '👍':    { Icon: ThumbsUp,  label: 'Good',    activeClass: 'bg-blue-100 border-blue-300 text-blue-600' },
+  '👀':    { Icon: Eye,       label: 'チェック', activeClass: 'bg-purple-100 border-purple-300 text-purple-600' },
+  '行きたい': { Icon: MapPin,  label: '行きたい', activeClass: 'bg-green-100 border-green-300 text-green-600' },
+  '気になる': { Icon: Sparkles, label: '気になる', activeClass: 'bg-amber-100 border-amber-300 text-amber-600' },
+};
 
 export default function ItemDetailPage() {
   const { itemId } = useParams<{ itemId: string }>();
@@ -92,14 +108,14 @@ export default function ItemDetailPage() {
           </div>
         ) : (
           <div className="w-full aspect-video bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-            <span className="text-6xl opacity-20">📎</span>
+            <Paperclip size={48} className="text-pink-300 opacity-40" strokeWidth={1.5} />
           </div>
         )}
         <button
           onClick={() => router.back()}
           className="absolute top-12 left-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm text-gray-700 shadow"
         >
-          ‹
+          <ChevronLeft size={20} strokeWidth={2} />
         </button>
       </div>
 
@@ -108,7 +124,12 @@ export default function ItemDetailPage() {
         <div className="flex items-center gap-2 flex-wrap mb-3">
           <SourceBadge type={item.sourceType} size="md" />
           {item.status && <StatusBadge status={item.status} />}
-          {list && <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{list.emoji} {list.title}</span>}
+          {list && (
+            <span className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+              <ListIcon name={list.emoji} size={11} className="text-gray-500" />
+              {list.title}
+            </span>
+          )}
         </div>
 
         {/* Title */}
@@ -116,7 +137,8 @@ export default function ItemDetailPage() {
 
         {/* Meta */}
         <div className="flex items-center gap-2 text-xs text-gray-400 mb-4">
-          <span>👤 {addedByUser?.displayName || '...'}</span>
+          <User size={12} strokeWidth={1.8} />
+          <span>{addedByUser?.displayName || '...'}</span>
           <span>·</span>
           <span>{item.createdAt.toLocaleDateString('ja-JP')}</span>
         </div>
@@ -158,8 +180,9 @@ export default function ItemDetailPage() {
               <button onClick={() => setEditingStatus(false)} className="text-xs text-gray-400 px-3 py-1.5">キャンセル</button>
             </div>
           ) : (
-            <button onClick={() => setEditingStatus(true)} className="text-xs text-pink-500 font-medium border border-pink-200 px-3 py-1.5 rounded-full">
-              {item.status ? `✏️ ${STATUS_LABEL[item.status]}` : '+ ステータスを設定'}
+            <button onClick={() => setEditingStatus(true)} className="inline-flex items-center gap-1.5 text-xs text-pink-500 font-medium border border-pink-200 px-3 py-1.5 rounded-full">
+              <Pencil size={11} strokeWidth={2} />
+              {item.status ? STATUS_LABEL[item.status] : 'ステータスを設定'}
             </button>
           )}
         </div>
@@ -167,13 +190,17 @@ export default function ItemDetailPage() {
         {/* Location */}
         {item.locationName && (
           <div className="bg-blue-50 rounded-2xl p-3 mb-4">
-            <p className="text-xs text-blue-600 font-medium mb-1">📍 場所</p>
+            <p className="flex items-center gap-1 text-xs text-blue-600 font-medium mb-1">
+              <MapPin size={12} strokeWidth={2} />
+              場所
+            </p>
             <p className="text-sm font-medium text-gray-900">{item.locationName}</p>
             {item.locationArea && <p className="text-xs text-gray-500">{item.locationArea}</p>}
             {item.locationAddress && <p className="text-xs text-gray-500">{item.locationAddress}</p>}
             {item.locationMapUrl && (
               <a href={item.locationMapUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-xs text-blue-600 font-medium">
-                🗺 地図で見る
+                <Map size={11} strokeWidth={2} />
+                地図で見る
               </a>
             )}
           </div>
@@ -183,18 +210,23 @@ export default function ItemDetailPage() {
         <div className="mb-5">
           <p className="text-xs font-medium text-gray-500 mb-2">リアクション</p>
           <div className="flex flex-wrap gap-2">
-            {REACTION_TYPES.map((type) => (
-              <button
-                key={type}
-                onClick={() => handleReaction(type)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition ${
-                  myReactions.has(type) ? 'bg-pink-100 border-pink-300 text-pink-700' : 'bg-white border-gray-200 text-gray-600'
-                }`}
-              >
-                <span>{type}</span>
-                {reactionCounts[type] > 0 && <span className="text-xs font-medium">{reactionCounts[type]}</span>}
-              </button>
-            ))}
+            {REACTION_TYPES.map((type) => {
+              const { Icon, label, activeClass } = REACTION_CONFIG[type];
+              const active = myReactions.has(type);
+              return (
+                <button
+                  key={type}
+                  onClick={() => handleReaction(type)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition ${
+                    active ? activeClass : 'bg-white border-gray-200 text-gray-600'
+                  }`}
+                >
+                  <Icon size={13} strokeWidth={active ? 2.2 : 1.8} />
+                  <span>{label}</span>
+                  {reactionCounts[type] > 0 && <span className="font-medium">{reactionCounts[type]}</span>}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -206,9 +238,7 @@ export default function ItemDetailPage() {
           className="w-full flex items-center justify-center gap-2 py-3 bg-gray-900 text-white rounded-2xl font-medium text-sm mb-4"
         >
           元のSNSで開く
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-          </svg>
+          <ExternalLink size={14} strokeWidth={2} />
         </a>
 
         {/* Comments */}

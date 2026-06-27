@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Users } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import ListCard from '@/components/lists/ListCard';
 import { subscribeLists } from '@/lib/firebase/firestore';
@@ -27,7 +28,7 @@ export default function SharedPage() {
 
         {sharedLists.length === 0 ? (
           <div className="flex flex-col items-center py-20 text-center">
-            <span className="text-5xl mb-4">👥</span>
+            <Users size={40} className="text-gray-300 mb-4" strokeWidth={1.5} />
             <p className="text-gray-500 font-medium">共有リストがありません</p>
             <p className="text-gray-400 text-sm mt-1 leading-relaxed">
               リストを作成して「共有」にするか、<br />招待リンクから参加してみよう

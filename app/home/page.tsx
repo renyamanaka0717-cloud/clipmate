@@ -9,7 +9,8 @@ import CreateListModal from '@/components/lists/CreateListModal';
 import { subscribeLists, getRecentItems } from '@/lib/firebase/firestore';
 import { useAuthContext } from '@/lib/AuthContext';
 import { List, Item } from '@/types';
-import { ChevronRight, Settings, Search as SearchIcon } from 'lucide-react';
+import { ChevronRight, Settings, Search as SearchIcon, Paperclip } from 'lucide-react';
+import ListIcon from '@/components/lists/ListIcon';
 
 export default function HomePage() {
   const { user } = useAuthContext();
@@ -42,7 +43,10 @@ export default function HomePage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">📎 ClipMate</h1>
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <Paperclip size={22} className="text-pink-500" strokeWidth={2.2} />
+              ClipMate
+            </h1>
             <p className="text-xs text-gray-400 mt-0.5">お気に入りを、一緒に。</p>
           </div>
           <button
@@ -77,7 +81,9 @@ export default function HomePage() {
                   onClick={() => router.push(`/lists/${list.id}`)}
                   className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-gray-50 transition text-left"
                 >
-                  <span className="text-2xl w-9 text-center flex-shrink-0">{list.emoji}</span>
+                  <div className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 flex-shrink-0">
+                    <ListIcon name={list.emoji} size={18} className="text-gray-600" />
+                  </div>
                   <span className="flex-1 font-medium text-gray-900 text-sm">{list.title}</span>
                   <ChevronRight size={16} className="text-gray-300 flex-shrink-0" strokeWidth={2.5} />
                 </button>
@@ -107,7 +113,9 @@ export default function HomePage() {
                     onClick={() => router.push(`/lists/${list.id}`)}
                     className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-gray-50 transition text-left"
                   >
-                    <span className="text-2xl w-9 text-center flex-shrink-0">{list.emoji}</span>
+                    <div className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 flex-shrink-0">
+                      <ListIcon name={list.emoji} size={18} className="text-gray-600" />
+                    </div>
                     <span className="flex-1 font-medium text-gray-900 text-sm">{list.title}</span>
                     <ChevronRight size={16} className="text-gray-300 flex-shrink-0" strokeWidth={2.5} />
                   </button>

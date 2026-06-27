@@ -2,16 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { ChevronLeft, Crown, Pencil, Eye, X } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { getListById, getListMembers, updateMemberRole, removeMember, isListMember } from '@/lib/firebase/firestore';
 import { useAuthContext } from '@/lib/AuthContext';
 import { List, ListMember, MemberRole } from '@/types';
 import { useUsers } from '@/hooks/useUsers';
 
-const ROLE_LABELS: Record<MemberRole, string> = {
-  owner: '👑 オーナー',
-  editor: '✏️ 編集',
-  viewer: '👁 閲覧のみ',
+type RoleConfig = { Icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>; label: string };
+
+const ROLE_CONFIG: Record<MemberRole, RoleConfig> = {
+  owner:  { Icon: Crown,  label: 'オーナー' },
+  editor: { Icon: Pencil, label: '編集' },
+  viewer: { Icon: Eye,    label: '閲覧のみ' },
 };
 
 export default function MembersPage() {
@@ -46,7 +49,9 @@ export default function MembersPage() {
     <AppShell>
       <div className="px-4 pt-12">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">‹</button>
+          <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500">
+            <ChevronLeft size={18} strokeWidth={2} />
+          </button>
           <h1 className="text-lg font-bold text-gray-900">メンバー管理</h1>
         </div>
 
@@ -54,6 +59,7 @@ export default function MembersPage() {
           {members.map((member) => {
             const u = users.get(member.userId);
             const isMe = member.userId === user?.uid;
+            const { Icon, label } = ROLE_CONFIG[member.role];
             return (
               <div key={member.id} className="bg-white rounded-2xl p-4 flex items-center gap-3 border border-gray-100">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center font-bold text-gray-600">
@@ -74,10 +80,15 @@ export default function MembersPage() {
                         <option key={r} value={r}>{r}</option>
                       ))}
                     </select>
-                    <button onClick={() => handleRemove(member)} className="text-red-400 text-sm">✕</button>
+                    <button onClick={() => handleRemove(member)} className="text-red-400">
+                      <X size={16} strokeWidth={2} />
+                    </button>
                   </div>
                 ) : (
-                  <span className="text-xs text-gray-500">{ROLE_LABELS[member.role]}</span>
+                  <span className="flex items-center gap-1 text-xs text-gray-500">
+                    <Icon size={12} strokeWidth={1.8} />
+                    {label}
+                  </span>
                 )}
               </div>
             );

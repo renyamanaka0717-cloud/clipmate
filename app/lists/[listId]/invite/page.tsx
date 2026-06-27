@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { ChevronLeft, Pencil, Eye } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { createInvitation, getListById } from '@/lib/firebase/firestore';
 import { useAuthContext } from '@/lib/AuthContext';
@@ -39,11 +40,18 @@ export default function InvitePage() {
     setTimeout(() => setCopied(false), 2000);
   }
 
+  const ROLE_OPTIONS: { key: MemberRole; label: string; Icon: React.ComponentType<{ size?: number; strokeWidth?: number }> }[] = [
+    { key: 'editor', label: '編集可', Icon: Pencil },
+    { key: 'viewer', label: '閲覧のみ', Icon: Eye },
+  ];
+
   return (
     <AppShell>
       <div className="px-4 pt-12">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">‹</button>
+          <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500">
+            <ChevronLeft size={18} strokeWidth={2} />
+          </button>
           <h1 className="text-lg font-bold text-gray-900">招待リンク</h1>
         </div>
 
@@ -55,15 +63,16 @@ export default function InvitePage() {
           <div className="mb-4">
             <label className="block text-xs font-medium text-gray-600 mb-2">権限</label>
             <div className="flex gap-2">
-              {(['editor', 'viewer'] as MemberRole[]).map((r) => (
+              {ROLE_OPTIONS.map(({ key, label, Icon }) => (
                 <button
-                  key={r}
-                  onClick={() => setRole(r)}
-                  className={`flex-1 py-2 rounded-xl text-sm border transition ${
-                    role === r ? 'bg-pink-50 border-pink-300 text-pink-700 font-medium' : 'bg-gray-50 border-gray-200 text-gray-600'
+                  key={key}
+                  onClick={() => setRole(key)}
+                  className={`flex-1 py-2 rounded-xl text-sm border transition flex items-center justify-center gap-1.5 ${
+                    role === key ? 'bg-pink-50 border-pink-300 text-pink-700 font-medium' : 'bg-gray-50 border-gray-200 text-gray-600'
                   }`}
                 >
-                  {r === 'editor' ? '✏️ 編集可' : '👁 閲覧のみ'}
+                  <Icon size={13} strokeWidth={2} />
+                  {label}
                 </button>
               ))}
             </div>

@@ -10,7 +10,8 @@ import { getListById, subscribeItems, subscribeChildLists, isListMember, deleteL
 import { useAuthContext } from '@/lib/AuthContext';
 import { List, Item } from '@/types';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, MoreHorizontal, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MoreHorizontal, Plus, Sparkles } from 'lucide-react';
+import ListIcon from '@/components/lists/ListIcon';
 
 const COLOR_BG: Record<string, string> = {
   pink: 'from-pink-400 to-pink-300',
@@ -106,7 +107,9 @@ export default function ListDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-4xl">{list?.emoji || '📋'}</span>
+          <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/20">
+            <ListIcon name={list?.emoji} size={28} className="text-white" />
+          </div>
           <div>
             <h1 className="text-xl font-bold text-white">{list?.title || ''}</h1>
             <p className="text-white/70 text-xs mt-0.5">
@@ -130,7 +133,9 @@ export default function ListDetailPage() {
                         onClick={() => router.push(`/lists/${child.id}`)}
                         className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-gray-50 transition text-left"
                       >
-                        <span className="text-2xl w-9 text-center flex-shrink-0">{child.emoji}</span>
+                        <div className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 flex-shrink-0">
+                          <ListIcon name={child.emoji} size={18} className="text-gray-600" />
+                        </div>
                         <span className="flex-1 font-medium text-gray-900 text-sm">{child.title}</span>
                         <ChevronRight size={16} className="text-gray-300 flex-shrink-0" strokeWidth={2.5} />
                       </button>
@@ -180,7 +185,7 @@ export default function ListDetailPage() {
         {/* Items */}
         {filtered.length === 0 && childLists.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <span className="text-5xl mb-4">✨</span>
+            <Sparkles size={40} className="text-gray-300 mb-4" strokeWidth={1.5} />
             <p className="text-gray-500 font-medium">まだ何もありません</p>
             <p className="text-gray-400 text-sm mt-1">右下のボタンから投稿を追加しよう</p>
           </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { X, Search as SearchIcon } from 'lucide-react';
 import { useAuthContext } from '@/lib/AuthContext';
 import { addItem } from '@/lib/firebase/firestore';
 import { fetchUrlMetadata, detectSourceType } from '@/lib/urlParser';
@@ -97,7 +98,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-bold text-gray-900">投稿を追加</h2>
             <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500">
-              ✕
+              <X size={16} strokeWidth={2} />
             </button>
           </div>
 
@@ -118,7 +119,10 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
                 )}
               </div>
               {sourceType && url && (
-                <p className="text-[10px] text-gray-400 mt-1 px-1">🔍 {sourceType === 'other' ? 'その他' : sourceType} として保存されます</p>
+                <p className="flex items-center gap-1 text-[10px] text-gray-400 mt-1 px-1">
+                  <SearchIcon size={9} strokeWidth={2} />
+                  {sourceType === 'other' ? 'その他' : sourceType} として保存されます
+                </p>
               )}
             </div>
 
@@ -210,7 +214,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
                       style={{ backgroundColor: tag.color + '20', color: tag.color }}
                       onClick={() => removeTag(tag.name)}
                     >
-                      #{tag.name} ✕
+                      #{tag.name} <X size={9} strokeWidth={2.5} />
                     </span>
                   ))}
                 </div>

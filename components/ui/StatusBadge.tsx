@@ -6,7 +6,7 @@ const STATUS_LABEL: Record<ItemStatus, string> = {
   want_to_eat: '食べたい',
   want_to_buy: '買いたい',
   want_to_see: '見たい',
-  done: '✅ 済み',
+  done: '済み',
   pending: '保留',
 };
 

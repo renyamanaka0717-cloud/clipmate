@@ -1,19 +1,20 @@
 'use client';
 
 import { useState } from 'react';
+import { Lock, Users, X } from 'lucide-react';
 import { useAuthContext } from '@/lib/AuthContext';
 import { createList } from '@/lib/firebase/firestore';
+import ListIcon, { LIST_ICON_OPTIONS } from './ListIcon';
 
-const EMOJI_OPTIONS = ['❤️','🍜','☕','🛍','✈️','👶','💡','📚','🎵','🎬','🍕','🏠','💪','🎨','🐶','🌸','⭐','🔥'];
 const COLOR_OPTIONS = [
-  { key: 'pink', label: 'ピンク', class: 'bg-pink-200' },
-  { key: 'purple', label: 'パープル', class: 'bg-purple-200' },
-  { key: 'blue', label: 'ブルー', class: 'bg-blue-200' },
-  { key: 'green', label: 'グリーン', class: 'bg-green-200' },
-  { key: 'yellow', label: 'イエロー', class: 'bg-yellow-200' },
-  { key: 'orange', label: 'オレンジ', class: 'bg-orange-200' },
-  { key: 'red', label: 'レッド', class: 'bg-red-200' },
-  { key: 'gray', label: 'グレー', class: 'bg-gray-200' },
+  { key: 'pink',   class: 'bg-pink-200' },
+  { key: 'purple', class: 'bg-purple-200' },
+  { key: 'blue',   class: 'bg-blue-200' },
+  { key: 'green',  class: 'bg-green-200' },
+  { key: 'yellow', class: 'bg-yellow-200' },
+  { key: 'orange', class: 'bg-orange-200' },
+  { key: 'red',    class: 'bg-red-200' },
+  { key: 'gray',   class: 'bg-gray-200' },
 ];
 
 interface Props {
@@ -25,7 +26,7 @@ interface Props {
 export default function CreateListModal({ onClose, onCreated, parentId }: Props) {
   const { user } = useAuthContext();
   const [title, setTitle] = useState('');
-  const [emoji, setEmoji] = useState('❤️');
+  const [iconName, setIconName] = useState('Heart');
   const [color, setColor] = useState('pink');
   const [visibility, setVisibility] = useState<'private' | 'shared'>('private');
   const [saving, setSaving] = useState(false);
@@ -38,7 +39,7 @@ export default function CreateListModal({ onClose, onCreated, parentId }: Props)
     try {
       const id = await createList({
         title: title.trim(),
-        emoji,
+        emoji: iconName,
         color,
         ownerId: user.uid,
         visibility,
@@ -55,6 +56,8 @@ export default function CreateListModal({ onClose, onCreated, parentId }: Props)
     }
   }
 
+  const previewBg = COLOR_OPTIONS.find((c) => c.key === color)?.class || 'bg-pink-200';
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 backdrop-blur-sm">
       <div className="bg-white w-full max-w-lg rounded-t-3xl shadow-xl max-h-[85vh] overflow-y-auto">
@@ -64,12 +67,14 @@ export default function CreateListModal({ onClose, onCreated, parentId }: Props)
         <div className="px-5 pb-8 pt-2">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-bold text-gray-900">リストを作成</h2>
-            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500">✕</button>
+            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500">
+              <X size={16} strokeWidth={2} />
+            </button>
           </div>
 
           {/* Preview */}
-          <div className={`flex items-center gap-3 p-4 rounded-2xl mb-5 ${COLOR_OPTIONS.find(c => c.key === color)?.class || 'bg-pink-200'}`}>
-            <span className="text-3xl">{emoji}</span>
+          <div className={`flex items-center gap-3 p-4 rounded-2xl mb-5 ${previewBg}`}>
+            <ListIcon name={iconName} size={28} className="text-gray-700" />
             <span className="font-semibold text-gray-900">{title || 'リスト名'}</span>
           </div>
 
@@ -86,19 +91,19 @@ export default function CreateListModal({ onClose, onCreated, parentId }: Props)
               />
             </div>
 
-            {/* Emoji */}
+            {/* Icon */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-2">絵文字</label>
+              <label className="block text-xs font-medium text-gray-600 mb-2">アイコン</label>
               <div className="grid grid-cols-9 gap-1.5">
-                {EMOJI_OPTIONS.map((e) => (
+                {LIST_ICON_OPTIONS.map(({ name, Icon }) => (
                   <button
-                    key={e}
-                    onClick={() => setEmoji(e)}
-                    className={`text-xl w-9 h-9 flex items-center justify-center rounded-xl transition ${
-                      emoji === e ? 'bg-pink-100 ring-2 ring-pink-400' : 'bg-gray-50 hover:bg-gray-100'
+                    key={name}
+                    onClick={() => setIconName(name)}
+                    className={`w-9 h-9 flex items-center justify-center rounded-xl transition ${
+                      iconName === name ? 'bg-pink-100 ring-2 ring-pink-400 text-pink-600' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                     }`}
                   >
-                    {e}
+                    <Icon size={18} strokeWidth={1.8} />
                   </button>
                 ))}
               </div>
@@ -125,17 +130,18 @@ export default function CreateListModal({ onClose, onCreated, parentId }: Props)
               <label className="block text-xs font-medium text-gray-600 mb-2">公開範囲</label>
               <div className="flex gap-2">
                 {[
-                  { key: 'private', label: '🔒 自分だけ' },
-                  { key: 'shared', label: '👥 共有' },
-                ].map((v) => (
+                  { key: 'private', label: '自分だけ', Icon: Lock },
+                  { key: 'shared',  label: '共有',     Icon: Users },
+                ].map(({ key, label, Icon }) => (
                   <button
-                    key={v.key}
-                    onClick={() => setVisibility(v.key as 'private' | 'shared')}
-                    className={`flex-1 py-2 rounded-xl text-sm transition border ${
-                      visibility === v.key ? 'bg-pink-50 border-pink-300 text-pink-700 font-medium' : 'bg-gray-50 border-gray-200 text-gray-600'
+                    key={key}
+                    onClick={() => setVisibility(key as 'private' | 'shared')}
+                    className={`flex-1 py-2 rounded-xl text-sm transition border flex items-center justify-center gap-1.5 ${
+                      visibility === key ? 'bg-pink-50 border-pink-300 text-pink-700 font-medium' : 'bg-gray-50 border-gray-200 text-gray-600'
                     }`}
                   >
-                    {v.label}
+                    <Icon size={13} strokeWidth={2} />
+                    {label}
                   </button>
                 ))}
               </div>

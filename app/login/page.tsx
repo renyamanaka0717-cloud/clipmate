@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Paperclip } from 'lucide-react';
 import { useAuthContext } from '@/lib/AuthContext';
 
 export default function LoginPage() {
@@ -59,7 +60,9 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">📎</div>
+          <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center shadow-sm">
+            <Paperclip size={32} className="text-white" strokeWidth={2} />
+          </div>
           <h1 className="text-3xl font-bold text-gray-900">ClipMate</h1>
           <p className="text-gray-500 mt-1 text-sm">お気に入りを、一緒に。</p>
         </div>

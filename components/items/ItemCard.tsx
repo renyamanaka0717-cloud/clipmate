@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Link2 } from 'lucide-react';
+import { Link2, Paperclip, MapPin, MessageCircle, Layers } from 'lucide-react';
 import {
   SiInstagram,
   SiTiktok,
@@ -72,7 +72,7 @@ export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-3xl opacity-15">📎</span>
+              <Paperclip size={24} className="text-gray-300" strokeWidth={1.5} />
             </div>
           )}
           <div className="absolute top-1 left-1">
@@ -92,14 +92,16 @@ export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
           </div>
 
           {item.locationName && (
-            <p className="text-[11px] text-gray-500 line-clamp-1">
-              📍 {item.locationName}
+            <p className="flex items-center gap-1 text-[11px] text-gray-500 line-clamp-1">
+              <MapPin size={10} strokeWidth={2} className="flex-shrink-0" />
+              {item.locationName}
             </p>
           )}
 
           {item.memo && (
-            <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">
-              💬 {item.memo}
+            <p className="flex items-start gap-1 text-[11px] text-gray-400 line-clamp-2 leading-relaxed">
+              <MessageCircle size={10} strokeWidth={2} className="flex-shrink-0 mt-px" />
+              {item.memo}
             </p>
           )}
 
@@ -118,7 +120,10 @@ export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
           )}
 
           {showList && listTitle && (
-            <p className="text-[10px] text-gray-400 mt-auto">📋 {listTitle}</p>
+            <p className="flex items-center gap-1 text-[10px] text-gray-400 mt-auto">
+              <Layers size={9} strokeWidth={2} className="flex-shrink-0" />
+              {listTitle}
+            </p>
           )}
         </div>
       </div>
