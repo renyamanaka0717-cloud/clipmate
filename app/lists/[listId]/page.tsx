@@ -124,8 +124,8 @@ export default function ListDetailPage() {
       </div>
 
       <div className="px-4 pt-4">
-        {/* Child Lists */}
-        {(childLists.length > 0 || canEdit) && (
+        {/* Child Lists — only shown on top-level lists */}
+        {!list?.parentId && (childLists.length > 0 || canEdit) && (
           <div className="mb-5">
             {childLists.length > 0 && (
               <>
@@ -193,7 +193,7 @@ export default function ListDetailPage() {
           </div>
         ) : filtered.length > 0 ? (
           <>
-            {(childLists.length > 0 || canEdit) && (
+            {!list?.parentId && (childLists.length > 0 || canEdit) && (
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1 mb-2">投稿</p>
             )}
             <div className="grid grid-cols-1 gap-3">
