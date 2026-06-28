@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { X, Search as SearchIcon } from 'lucide-react';
 import {
@@ -50,13 +50,13 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewMeta, setPreviewMeta] = useState<UrlMetadata | null>(null);
   const [previewImgError, setPreviewImgError] = useState(false);
-  const titleAutoFilledRef = useRef(false);
+  const [manualImageUrl, setManualImageUrl] = useState('');
+  const [manualImgError, setManualImgError] = useState(false);
 
   useEffect(() => {
     if (!url) {
       setPreviewLoading(false);
       setPreviewMeta(null);
-      titleAutoFilledRef.current = false;
       return;
     }
 
@@ -66,10 +66,6 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
     const timer = setTimeout(async () => {
       const meta = await fetchUrlMetadata(url);
       setPreviewMeta(meta);
-      if (meta.title && !titleAutoFilledRef.current) {
-        setTitle(meta.title);
-        titleAutoFilledRef.current = true;
-      }
       setPreviewLoading(false);
     }, 700);
 
@@ -94,7 +90,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
         sourceType: previewMeta?.sourceType ?? detectSourceType(url),
         title: title || url,
         description: previewMeta?.description || undefined,
-        thumbnailUrl: previewMeta?.thumbnailUrl || undefined,
+        thumbnailUrl: previewImgError ? (manualImageUrl || undefined) : (previewMeta?.thumbnailUrl || manualImageUrl || undefined),
         siteName: previewMeta?.siteName || undefined,
         resolvedUrl: previewMeta?.resolvedUrl || undefined,
         memo: memo || undefined,
@@ -140,11 +136,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
                 <input
                   type="url"
                   value={url}
-                  onChange={(e) => {
-                    setUrl(e.target.value);
-                    titleAutoFilledRef.current = false;
-                    setTitle('');
-                  }}
+                  onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://..."
                   className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition pr-10"
                 />
@@ -215,14 +207,38 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
               </div>
             )}
 
+            {/* Manual image URL — shown when OGP has no thumbnail or thumbnail failed to load */}
+            {url && !previewLoading && previewMeta && (!previewMeta.thumbnailUrl || previewImgError) && (
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">画像URL（任意）</label>
+                <input
+                  type="url"
+                  value={manualImageUrl}
+                  onChange={(e) => { setManualImageUrl(e.target.value); setManualImgError(false); }}
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition"
+                />
+                {manualImageUrl && !manualImgError && (
+                  <div className="relative mt-2 w-full h-32 rounded-xl overflow-hidden bg-gray-100">
+                    <Image
+                      src={manualImageUrl}
+                      alt="preview"
+                      fill
+                      className="object-cover"
+                      onError={() => setManualImgError(true)}
+                      unoptimized
+                    />
+                  </div>
+                )}
+                {manualImageUrl && manualImgError && (
+                  <p className="text-[11px] text-red-400 mt-1 px-1">画像を読み込めませんでした</p>
+                )}
+              </div>
+            )}
+
             {/* Title */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                タイトル
-                {titleAutoFilledRef.current && title && (
-                  <span className="ml-1.5 text-[10px] text-pink-400 font-normal">自動取得</span>
-                )}
-              </label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">タイトル</label>
               <input
                 type="text"
                 value={title}
