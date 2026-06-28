@@ -50,8 +50,6 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewMeta, setPreviewMeta] = useState<UrlMetadata | null>(null);
   const [previewImgError, setPreviewImgError] = useState(false);
-  const [manualImageUrl, setManualImageUrl] = useState('');
-  const [manualImgError, setManualImgError] = useState(false);
 
   useEffect(() => {
     if (!url) {
@@ -90,7 +88,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
         sourceType: previewMeta?.sourceType ?? detectSourceType(url),
         title: title || previewMeta?.title || url,
         description: previewMeta?.description || undefined,
-        thumbnailUrl: previewImgError ? (manualImageUrl || undefined) : (previewMeta?.thumbnailUrl || manualImageUrl || undefined),
+        thumbnailUrl: previewMeta?.thumbnailUrl || undefined,
         siteName: previewMeta?.siteName || undefined,
         resolvedUrl: previewMeta?.resolvedUrl || undefined,
         memo: memo || undefined,
@@ -203,35 +201,6 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
                       )}
                     </div>
                   </div>
-                )}
-              </div>
-            )}
-
-            {/* Manual image URL — shown when OGP has no thumbnail or thumbnail failed to load */}
-            {url && !previewLoading && previewMeta && (!previewMeta.thumbnailUrl || previewImgError) && (
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">画像URL（任意）</label>
-                <input
-                  type="url"
-                  value={manualImageUrl}
-                  onChange={(e) => { setManualImageUrl(e.target.value); setManualImgError(false); }}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition"
-                />
-                {manualImageUrl && !manualImgError && (
-                  <div className="relative mt-2 w-full h-32 rounded-xl overflow-hidden bg-gray-100">
-                    <Image
-                      src={manualImageUrl}
-                      alt="preview"
-                      fill
-                      className="object-cover"
-                      onError={() => setManualImgError(true)}
-                      unoptimized
-                    />
-                  </div>
-                )}
-                {manualImageUrl && manualImgError && (
-                  <p className="text-[11px] text-red-400 mt-1 px-1">画像を読み込めませんでした</p>
                 )}
               </div>
             )}
