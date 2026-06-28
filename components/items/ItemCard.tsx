@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Link2, Paperclip, MapPin, Layers } from 'lucide-react';
+import { Paperclip, Layers } from 'lucide-react';
+import { Link2 } from 'lucide-react';
 import {
   SiInstagram,
   SiTiktok,
@@ -12,6 +13,7 @@ import {
   SiPinterest,
   SiX,
 } from 'react-icons/si';
+import SourceBadge from '@/components/ui/SourceBadge';
 import { Item, SourceType } from '@/types';
 
 interface Props {
@@ -36,77 +38,71 @@ const SNS: Record<SourceType, SnsConfig> = {
   other:     { Icon: Link2,       bg: '#9CA3AF' },
 };
 
-function SnsOverlay({ type }: { type: SourceType }) {
-  const { Icon, bg } = SNS[type] ?? SNS.other;
-  return (
-    <div
-      className="w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md"
-      style={{ backgroundColor: bg }}
-    >
-      <Icon size={11} color="#fff" />
-    </div>
-  );
-}
-
 export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
   const [imgError, setImgError] = useState(false);
   const hasThumbnail = Boolean(item.thumbnailUrl) && !imgError;
+  const { Icon, bg } = SNS[item.sourceType] ?? SNS.other;
 
   return (
     <Link href={`/items/${item.id}`}>
       <div
-        className={`bg-white rounded-[18px] shadow-sm border flex gap-3 p-3 transition-all active:scale-[0.98] ${
+        className={`bg-white rounded-[20px] shadow-sm border overflow-hidden transition-all active:scale-[0.98] ${
           isNew ? 'border-pink-200 ring-2 ring-pink-100' : 'border-gray-100'
         }`}
       >
         {/* Thumbnail */}
-        <div className="relative flex-shrink-0 w-[80px] self-stretch min-h-[80px] rounded-xl overflow-hidden bg-gray-100">
+        <div className="relative w-full aspect-video">
           {hasThumbnail ? (
-            <Image
-              src={item.thumbnailUrl!}
-              alt={item.title || 'thumbnail'}
-              fill
-              className="object-cover"
-              onError={() => setImgError(true)}
-              unoptimized
-            />
+            <>
+              <Image
+                src={item.thumbnailUrl!}
+                alt={item.title || 'thumbnail'}
+                fill
+                className="object-cover"
+                onError={() => setImgError(true)}
+                unoptimized
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+            </>
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Paperclip size={24} className="text-gray-300" strokeWidth={1.5} />
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ backgroundColor: bg + '15' }}
+            >
+              {item.sourceType === 'other' ? (
+                <Paperclip size={40} strokeWidth={1.5} style={{ color: bg }} />
+              ) : (
+                <Icon size={44} color={bg} />
+              )}
             </div>
           )}
-          <div className="absolute top-1 left-1">
-            <SnsOverlay type={item.sourceType} />
-          </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0 flex flex-col gap-1 py-0.5">
-          <div className="flex items-start gap-2">
-            <p className="flex-1 text-[13px] font-semibold text-gray-900 leading-snug line-clamp-2">
-              {item.title || item.url}
-            </p>
-            <span className="text-[10px] text-gray-400 flex-shrink-0 mt-px whitespace-nowrap">
-              {formatDate(item.createdAt)}
-            </span>
-          </div>
+        <div className="px-3.5 pt-3 pb-3.5 space-y-1.5">
+          {/* Title */}
+          <p className="text-[13px] font-semibold text-gray-900 leading-snug line-clamp-2">
+            {item.title || item.url}
+          </p>
 
-          {(item.description || item.memo) && (
-            <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">
-              {item.memo || item.description}
+          {/* Description */}
+          {item.description && (
+            <p className="text-[11px] text-gray-500 line-clamp-2 leading-relaxed">
+              {item.description}
             </p>
           )}
 
-          {item.locationName && (
-            <p className="flex items-center gap-1 text-[11px] text-gray-500 line-clamp-1">
-              <MapPin size={10} strokeWidth={2} className="flex-shrink-0" />
-              {item.locationName}
+          {/* Memo */}
+          {item.memo && (
+            <p className="text-[11px] text-gray-400 line-clamp-1 italic">
+              {item.memo}
             </p>
           )}
 
+          {/* Tags */}
           {item.tags && item.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-auto pt-0.5">
-              {item.tags.slice(0, 4).map((tag) => (
+            <div className="flex flex-wrap gap-1 pt-0.5">
+              {item.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag.name}
                   className="text-[10px] px-2 py-0.5 rounded-full font-medium"
@@ -118,12 +114,19 @@ export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
             </div>
           )}
 
-          {showList && listTitle && (
-            <p className="flex items-center gap-1 text-[10px] text-gray-400 mt-auto">
-              <Layers size={9} strokeWidth={2} className="flex-shrink-0" />
-              {listTitle}
-            </p>
-          )}
+          {/* Footer: source badge + list name + date */}
+          <div className="flex items-center gap-2 pt-1">
+            <SourceBadge type={item.sourceType} size="sm" />
+            {showList && listTitle && (
+              <span className="flex items-center gap-1 text-[10px] text-gray-400">
+                <Layers size={9} strokeWidth={2} className="flex-shrink-0" />
+                {listTitle}
+              </span>
+            )}
+            <span className="ml-auto text-[10px] text-gray-400 flex-shrink-0">
+              {formatDate(item.createdAt)}
+            </span>
+          </div>
         </div>
       </div>
     </Link>

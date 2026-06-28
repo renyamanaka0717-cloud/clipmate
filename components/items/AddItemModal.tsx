@@ -88,7 +88,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
         listId: selectedListId,
         url,
         sourceType: previewMeta?.sourceType ?? detectSourceType(url),
-        title: title || url,
+        title: title || previewMeta?.title || url,
         description: previewMeta?.description || undefined,
         thumbnailUrl: previewImgError ? (manualImageUrl || undefined) : (previewMeta?.thumbnailUrl || manualImageUrl || undefined),
         siteName: previewMeta?.siteName || undefined,
