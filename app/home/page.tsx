@@ -9,7 +9,7 @@ import CreateListModal from '@/components/lists/CreateListModal';
 import { subscribeLists, getRecentItems } from '@/lib/firebase/firestore';
 import { useAuthContext } from '@/lib/AuthContext';
 import { List, Item } from '@/types';
-import { ChevronRight, Settings, Search as SearchIcon, Paperclip } from 'lucide-react';
+import { ChevronRight, Settings, Search as SearchIcon } from 'lucide-react';
 import ListIcon from '@/components/lists/ListIcon';
 
 export default function HomePage() {
@@ -40,31 +40,22 @@ export default function HomePage() {
   return (
     <AppShell>
       <div className="px-4 pt-12 pb-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Paperclip size={22} className="text-pink-500" strokeWidth={2.2} />
-              ClipMate
-            </h1>
-            <p className="text-xs text-gray-400 mt-0.5">お気に入りを、一緒に。</p>
-          </div>
+        {/* Header: search bar + settings */}
+        <div className="flex items-center gap-2 mb-6">
+          <button
+            onClick={() => router.push('/search')}
+            className="flex-1 flex items-center gap-3 px-4 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm text-gray-400 text-sm"
+          >
+            <SearchIcon size={16} strokeWidth={2} />
+            「前に見たあの投稿...」を探す
+          </button>
           <button
             onClick={() => router.push('/settings')}
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-500"
+            className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white border border-gray-100 shadow-sm text-gray-500 flex-shrink-0"
           >
             <Settings size={18} strokeWidth={1.6} />
           </button>
         </div>
-
-        {/* Search bar */}
-        <button
-          onClick={() => router.push('/search')}
-          className="w-full flex items-center gap-3 px-4 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm mb-6 text-gray-400 text-sm"
-        >
-          <SearchIcon size={16} strokeWidth={2} />
-          「前に見たあの投稿...」を探す
-        </button>
 
         {/* My Lists - Explorer style */}
         <section className="mb-6">
