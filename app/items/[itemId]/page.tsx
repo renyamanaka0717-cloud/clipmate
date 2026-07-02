@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { ChevronLeft, Paperclip, User, MapPin, Map, Pencil, Heart, ThumbsUp, Eye, Sparkles, ExternalLink } from 'lucide-react';
+import { ChevronLeft, User, MapPin, Map, Pencil, Heart, ThumbsUp, Eye, Sparkles, ExternalLink } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import SourceBadge from '@/components/ui/SourceBadge';
 import StatusBadge, { STATUS_LABEL } from '@/components/ui/StatusBadge';
@@ -43,7 +42,6 @@ export default function ItemDetailPage() {
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [commentText, setCommentText] = useState('');
   const [editingStatus, setEditingStatus] = useState(false);
-  const [imgError, setImgError] = useState(false);
   const addedByUser = useUser(item?.addedBy);
 
   useEffect(() => {
@@ -99,27 +97,17 @@ export default function ItemDetailPage() {
 
   return (
     <AppShell>
-      {/* Thumbnail */}
-      <div className="relative">
-        {item.thumbnailUrl && !imgError ? (
-          <div className="relative w-full aspect-video bg-gray-100">
-            <Image src={item.thumbnailUrl} alt={item.title} fill className="object-cover" onError={() => setImgError(true)} unoptimized />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent" />
-          </div>
-        ) : (
-          <div className="w-full aspect-video bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-            <Paperclip size={48} className="text-pink-300 opacity-40" strokeWidth={1.5} />
-          </div>
-        )}
+      {/* Back button */}
+      <div className="px-4 pt-12 pb-2">
         <button
           onClick={() => router.back()}
-          className="absolute top-12 left-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm text-gray-700 shadow"
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-700 shadow-sm"
         >
           <ChevronLeft size={20} strokeWidth={2} />
         </button>
       </div>
 
-      <div className="px-4 pt-4 pb-8">
+      <div className="px-4 pt-2 pb-8">
         {/* Badges */}
         <div className="flex items-center gap-2 flex-wrap mb-3">
           <SourceBadge type={item.sourceType} size="md" />
