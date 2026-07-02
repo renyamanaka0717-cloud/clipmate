@@ -280,7 +280,7 @@ function CommentItem({ comment, currentUserId, onDelete }: { comment: Comment; c
   const u = useUser(comment.userId);
   return (
     <div className="flex gap-2">
-      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: 'var(--color-avatar-gradient)' }}>
+      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ backgroundColor: 'var(--color-primary)' }}>
         {u?.displayName?.[0]?.toUpperCase() || '?'}
       </div>
       <div className="flex-1 bg-gray-50 rounded-2xl px-3 py-2">

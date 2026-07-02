@@ -29,7 +29,7 @@ export default function SettingsPage() {
         <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm mb-4">
           <p className="text-xs font-medium text-gray-400 mb-3 uppercase tracking-wide">アカウント</p>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold text-white" style={{ background: 'var(--color-avatar-gradient)' }}>
+            <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold text-white" style={{ backgroundColor: 'var(--color-primary)' }}>
               {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
             </div>
             <div>

@@ -149,9 +149,9 @@ export default function ListDetailPage() {
               <button
                 onClick={() => setShowCreateSub(true)}
                 className="flex items-center gap-2 text-sm font-medium px-1 py-1"
-                style={{ color: 'var(--color-secondary)' }}
+                style={{ color: 'var(--color-primary)' }}
               >
-                <span className="w-6 h-6 flex items-center justify-center rounded-full text-white" style={{ backgroundColor: 'var(--color-secondary)' }}><Plus size={13} strokeWidth={2.5} /></span>
+                <span className="w-6 h-6 flex items-center justify-center rounded-full" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}><Plus size={13} strokeWidth={2.5} /></span>
                 サブリストを追加
               </button>
             )}
@@ -209,7 +209,7 @@ export default function ListDetailPage() {
         <button
           onClick={() => setShowAddItem(true)}
           className="fixed bottom-24 right-5 w-14 h-14 rounded-full flex items-center justify-center text-white text-2xl z-30 active:scale-90 transition"
-          style={{ background: 'var(--color-gradient)' }}
+          style={{ backgroundColor: 'var(--color-primary)' }}
         >
           +
         </button>

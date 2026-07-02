@@ -29,7 +29,7 @@ export default function MyPage() {
       <div className="px-4 pt-12 pb-4">
         {/* Profile */}
         <div className="flex items-center gap-4 mb-8">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white shadow-sm" style={{ background: 'var(--color-avatar-gradient)' }}>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white shadow-sm" style={{ backgroundColor: 'var(--color-primary)' }}>
             {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
           </div>
           <div>
@@ -51,7 +51,7 @@ export default function MyPage() {
             <p className="text-xs text-gray-500 mt-0.5">マイリスト</p>
           </div>
           <div className="rounded-2xl p-4 text-center" style={{ backgroundColor: 'var(--color-primary-pale)' }}>
-            <p className="text-2xl font-bold" style={{ color: 'var(--color-secondary)' }}>{lists.filter(l => l.visibility === 'shared').length}</p>
+            <p className="text-2xl font-bold" style={{ color: 'var(--color-primary)' }}>{lists.filter(l => l.visibility === 'shared').length}</p>
             <p className="text-xs text-gray-500 mt-0.5">共有リスト</p>
           </div>
         </div>
