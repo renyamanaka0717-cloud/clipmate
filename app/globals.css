@@ -3,6 +3,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --color-primary: #2dd4bf;
+  --color-primary-light: #ccfbf1;
+  --color-primary-pale: #f0fdfa;
+  --color-gradient: linear-gradient(135deg, #2dd4bf, #0d9488);
 }
 
 body {

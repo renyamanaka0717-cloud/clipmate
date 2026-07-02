@@ -308,7 +308,8 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
             <button
               onClick={handleSave}
               disabled={!url || !selectedListId || saving}
-              className="w-full py-3.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-2xl font-semibold text-sm shadow-sm disabled:opacity-40 transition active:scale-95 mt-2"
+              className="w-full py-3.5 text-white rounded-2xl font-semibold text-sm shadow-sm disabled:opacity-40 transition active:scale-95 mt-2"
+              style={{ background: 'var(--color-gradient)' }}
             >
               {saving ? '保存中...' : '保存する'}
             </button>

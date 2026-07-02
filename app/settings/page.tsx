@@ -3,10 +3,13 @@
 import { useRouter } from 'next/navigation';
 import AppShell from '@/components/layout/AppShell';
 import { useAuthContext } from '@/lib/AuthContext';
+import { useTheme } from '@/lib/ThemeContext';
+import { THEMES, ThemeName } from '@/lib/theme';
 import { ChevronLeft, Bell, Moon, Share2 } from 'lucide-react';
 
 export default function SettingsPage() {
   const { user, logout } = useAuthContext();
+  const { themeName, setTheme } = useTheme();
   const router = useRouter();
 
   async function handleLogout() {
@@ -48,6 +51,39 @@ export default function SettingsPage() {
               <span className="text-sm text-gray-700">プラン</span>
               <span className="text-sm text-gray-400">無料</span>
             </div>
+          </div>
+        </div>
+
+        {/* Theme Color */}
+        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm mb-4">
+          <p className="text-xs font-medium text-gray-400 mb-4 uppercase tracking-wide">テーマカラー</p>
+          <div className="flex gap-4 flex-wrap">
+            {THEMES.map((t) => {
+              const active = themeName === t.name;
+              return (
+                <button
+                  key={t.name}
+                  onClick={() => setTheme(t.name as ThemeName)}
+                  className="flex flex-col items-center gap-1.5"
+                >
+                  <div
+                    className="w-11 h-11 rounded-full transition-transform"
+                    style={{
+                      backgroundColor: t.primary,
+                      outline: active ? `3px solid ${t.primary}` : '3px solid transparent',
+                      outlineOffset: '2px',
+                      transform: active ? 'scale(1.1)' : 'scale(1)',
+                    }}
+                  />
+                  <span
+                    className="text-[10px] font-medium"
+                    style={{ color: active ? t.primary : '#9ca3af' }}
+                  >
+                    {t.label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 

@@ -133,7 +133,8 @@ export default function HomePage() {
       {/* FAB */}
       <button
         onClick={() => setShowAddItem(true)}
-        className="fixed bottom-24 right-5 w-14 h-14 bg-gradient-to-br from-pink-500 to-purple-500 rounded-full shadow-lg flex items-center justify-center text-white text-2xl z-30 active:scale-90 transition"
+        className="fixed bottom-24 right-5 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white text-2xl z-30 active:scale-90 transition"
+        style={{ background: 'var(--color-gradient)' }}
       >
         +
       </button>

@@ -20,8 +20,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">
-          <Paperclip size={32} className="text-pink-400" strokeWidth={1.8} />
-          <div className="w-8 h-8 border-4 border-pink-400 border-t-transparent rounded-full animate-spin" />
+          <Paperclip size={32} strokeWidth={1.8} style={{ color: 'var(--color-primary)' }} />
+          <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--color-primary)', borderTopColor: 'transparent' }} />
         </div>
       </div>
     );
