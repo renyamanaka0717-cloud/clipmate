@@ -1,9 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Link2, Paperclip, MapPin, Layers } from 'lucide-react';
+import { Link2, MapPin, Layers } from 'lucide-react';
 import {
   SiInstagram,
   SiTiktok,
@@ -36,21 +34,8 @@ const SNS: Record<SourceType, SnsConfig> = {
   other:     { Icon: Link2,       bg: '#9CA3AF' },
 };
 
-function SnsOverlay({ type }: { type: SourceType }) {
-  const { Icon, bg } = SNS[type] ?? SNS.other;
-  return (
-    <div
-      className="w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md"
-      style={{ backgroundColor: bg }}
-    >
-      <Icon size={11} color="#fff" />
-    </div>
-  );
-}
-
 export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
-  const [imgError, setImgError] = useState(false);
-  const hasThumbnail = Boolean(item.thumbnailUrl) && !imgError;
+  const { Icon, bg } = SNS[item.sourceType] ?? SNS.other;
 
   return (
     <Link href={`/items/${item.id}`}>
@@ -59,25 +44,12 @@ export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
           isNew ? 'border-pink-200 ring-2 ring-pink-100' : 'border-gray-100'
         }`}
       >
-        {/* Thumbnail */}
-        <div className="relative flex-shrink-0 w-[80px] self-stretch min-h-[80px] rounded-xl overflow-hidden bg-gray-100">
-          {hasThumbnail ? (
-            <Image
-              src={item.thumbnailUrl!}
-              alt={item.title || 'thumbnail'}
-              fill
-              className="object-cover"
-              onError={() => setImgError(true)}
-              unoptimized
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Paperclip size={24} className="text-gray-300" strokeWidth={1.5} />
-            </div>
-          )}
-          <div className="absolute top-1 left-1">
-            <SnsOverlay type={item.sourceType} />
-          </div>
+        {/* SNS Icon */}
+        <div
+          className="flex-shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center self-center"
+          style={{ backgroundColor: bg + '18' }}
+        >
+          <Icon size={22} color={bg} />
         </div>
 
         {/* Content */}
