@@ -148,9 +148,10 @@ export default function ListDetailPage() {
             {canEdit && (
               <button
                 onClick={() => setShowCreateSub(true)}
-                className="flex items-center gap-2 text-sm text-pink-500 font-medium px-1 py-1"
+                className="flex items-center gap-2 text-sm font-medium px-1 py-1"
+                style={{ color: 'var(--color-secondary)' }}
               >
-                <span className="w-6 h-6 flex items-center justify-center rounded-full bg-pink-100 text-pink-500"><Plus size={13} strokeWidth={2.5} /></span>
+                <span className="w-6 h-6 flex items-center justify-center rounded-full text-white" style={{ backgroundColor: 'var(--color-secondary)' }}><Plus size={13} strokeWidth={2.5} /></span>
                 サブリストを追加
               </button>
             )}
@@ -207,7 +208,7 @@ export default function ListDetailPage() {
       {canEdit && (
         <button
           onClick={() => setShowAddItem(true)}
-          className="fixed bottom-24 right-5 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white text-2xl z-30 active:scale-90 transition"
+          className="fixed bottom-24 right-5 w-14 h-14 rounded-full flex items-center justify-center text-white text-2xl z-30 active:scale-90 transition"
           style={{ background: 'var(--color-gradient)' }}
         >
           +

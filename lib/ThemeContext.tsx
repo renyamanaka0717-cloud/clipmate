@@ -27,9 +27,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const t = getTheme(themeName);
     const root = document.documentElement;
     root.style.setProperty('--color-primary', t.primary);
+    root.style.setProperty('--color-secondary', t.secondary);
+    root.style.setProperty('--color-accent', t.accent);
     root.style.setProperty('--color-primary-light', t.light);
     root.style.setProperty('--color-primary-pale', t.pale);
     root.style.setProperty('--color-gradient', t.gradient);
+    root.style.setProperty('--color-avatar-gradient', t.avatarGradient);
     localStorage.setItem(STORAGE_KEY, themeName);
   }, [themeName]);
 

@@ -169,8 +169,9 @@ export default function ItemDetailPage() {
                   key={key}
                   onClick={() => handleStatusChange(key)}
                   className={`text-xs px-3 py-1.5 rounded-full border transition ${
-                    item.status === key ? 'bg-pink-500 text-white border-pink-500' : 'bg-white text-gray-600 border-gray-200'
+                    item.status === key ? 'text-white' : 'bg-white text-gray-600 border-gray-200'
                   }`}
+                  style={item.status === key ? { backgroundColor: 'var(--color-primary)', borderColor: 'var(--color-primary)' } : undefined}
                 >
                   {label}
                 </button>
@@ -178,7 +179,7 @@ export default function ItemDetailPage() {
               <button onClick={() => setEditingStatus(false)} className="text-xs text-gray-400 px-3 py-1.5">キャンセル</button>
             </div>
           ) : (
-            <button onClick={() => setEditingStatus(true)} className="inline-flex items-center gap-1.5 text-xs text-pink-500 font-medium border border-pink-200 px-3 py-1.5 rounded-full">
+            <button onClick={() => setEditingStatus(true)} className="inline-flex items-center gap-1.5 text-xs font-medium border px-3 py-1.5 rounded-full" style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary-light)' }}>
               <Pencil size={11} strokeWidth={2} />
               {item.status ? STATUS_LABEL[item.status] : 'ステータスを設定'}
             </button>
@@ -258,7 +259,8 @@ export default function ItemDetailPage() {
             <button
               onClick={handleAddComment}
               disabled={!commentText.trim()}
-              className="px-4 py-2 bg-pink-500 text-white rounded-2xl text-sm font-medium disabled:opacity-40"
+              className="px-4 py-2 text-white rounded-2xl text-sm font-medium disabled:opacity-40"
+              style={{ backgroundColor: 'var(--color-primary)' }}
             >
               送信
             </button>
@@ -278,7 +280,7 @@ function CommentItem({ comment, currentUserId, onDelete }: { comment: Comment; c
   const u = useUser(comment.userId);
   return (
     <div className="flex gap-2">
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center text-xs font-bold text-gray-600 flex-shrink-0">
+      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: 'var(--color-avatar-gradient)' }}>
         {u?.displayName?.[0]?.toUpperCase() || '?'}
       </div>
       <div className="flex-1 bg-gray-50 rounded-2xl px-3 py-2">

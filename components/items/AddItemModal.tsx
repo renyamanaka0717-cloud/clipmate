@@ -136,10 +136,10 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://..."
-                  className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition pr-10"
+                  className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none themed-input transition pr-10"
                 />
                 {previewLoading && (
-                  <div className="absolute right-3 top-3.5 w-4 h-4 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
+                  <div className="absolute right-3 top-3.5 w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--color-primary)', borderTopColor: 'transparent' }} />
                 )}
               </div>
               {url && !previewLoading && previewMeta && (
@@ -215,7 +215,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
                   setTitle(e.target.value);
                 }}
                 placeholder="タイトルを入力（空欄でURLを保存）"
-                className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition"
+                className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none themed-input transition"
               />
             </div>
 
@@ -225,7 +225,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
               <select
                 value={selectedListId}
                 onChange={(e) => setSelectedListId(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition"
+                className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none themed-input transition"
               >
                 {lists.map((l) => (
                   <option key={l.id} value={l.id}>{l.title}</option>
@@ -242,8 +242,9 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
                     key={key}
                     onClick={() => setStatus(status === key ? '' : key)}
                     className={`text-xs px-3 py-1.5 rounded-full border transition ${
-                      status === key ? 'bg-pink-500 text-white border-pink-500' : 'bg-white text-gray-600 border-gray-200'
+                      status === key ? 'text-white' : 'bg-white text-gray-600 border-gray-200'
                     }`}
+                    style={status === key ? { backgroundColor: 'var(--color-primary)', borderColor: 'var(--color-primary)' } : undefined}
                   >
                     {label}
                   </button>
@@ -259,7 +260,7 @@ export default function AddItemModal({ lists, defaultListId, onClose, onAdded }:
                 onChange={(e) => setMemo(e.target.value)}
                 placeholder="自分だけのメモを追加..."
                 rows={2}
-                className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition resize-none"
+                className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none themed-input transition resize-none"
               />
             </div>
 

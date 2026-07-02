@@ -56,11 +56,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center shadow-sm">
+          <div className="w-16 h-16 mx-auto mb-3 rounded-2xl flex items-center justify-center shadow-sm" style={{ background: 'var(--color-gradient)' }}>
             <Paperclip size={32} className="text-white" strokeWidth={2} />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">ClipMate</h1>
@@ -99,7 +99,7 @@ export default function LoginPage() {
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="名前を入力"
                   required
-                  className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition"
+                  className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none themed-input transition"
                 />
               </div>
             )}
@@ -111,7 +111,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@example.com"
                 required
-                className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition"
+                className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none themed-input transition"
               />
             </div>
             <div>
@@ -122,7 +122,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="6文字以上"
                 required
-                className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition"
+                className="w-full px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none themed-input transition"
               />
             </div>
             {error && (
@@ -131,7 +131,8 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-2xl font-medium text-sm shadow-sm disabled:opacity-50 transition active:scale-95"
+              className="w-full py-3 text-white rounded-2xl font-medium text-sm shadow-sm disabled:opacity-50 transition active:scale-95"
+              style={{ background: 'var(--color-gradient)' }}
             >
               {loading ? '処理中...' : mode === 'login' ? 'ログイン' : 'アカウントを作成'}
             </button>

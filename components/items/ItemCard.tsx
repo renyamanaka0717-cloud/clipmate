@@ -40,9 +40,11 @@ export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
   return (
     <Link href={`/items/${item.id}`}>
       <div
-        className={`bg-white rounded-[18px] shadow-sm border flex gap-3 p-3 transition-all active:scale-[0.98] ${
-          isNew ? 'border-pink-200 ring-2 ring-pink-100' : 'border-gray-100'
-        }`}
+        className="bg-white rounded-[18px] shadow-sm border flex gap-3 p-3 transition-all active:scale-[0.98]"
+        style={isNew
+          ? { borderColor: 'var(--color-primary-light)', boxShadow: '0 0 0 2px var(--color-primary-pale)' }
+          : { borderColor: '#f3f4f6' }
+        }
       >
         {/* SNS Icon */}
         <div
