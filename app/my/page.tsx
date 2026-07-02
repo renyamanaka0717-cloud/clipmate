@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Settings, ClipboardList } from 'lucide-react';
+import { Settings, ClipboardList, ChevronRight, Users } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
-import ListCard from '@/components/lists/ListCard';
 import CreateListModal from '@/components/lists/CreateListModal';
+import ListIcon from '@/components/lists/ListIcon';
 import { subscribeLists } from '@/lib/firebase/firestore';
 import { useAuthContext } from '@/lib/AuthContext';
 import { List } from '@/types';
@@ -71,9 +71,29 @@ export default function MyPage() {
             最初のリストを作成しよう
           </button>
         ) : (
-          <div className="space-y-3">
-            {myLists.map((list) => (
-              <ListCard key={list.id} list={list} />
+          <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+            {myLists.map((list, i) => (
+              <div key={list.id}>
+                <button
+                  onClick={() => router.push(`/lists/${list.id}`)}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-gray-50 transition text-left"
+                >
+                  <div className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 flex-shrink-0">
+                    <ListIcon name={list.emoji} size={18} className="text-gray-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 text-sm truncate">{list.title}</p>
+                    {list.visibility === 'shared' && (
+                      <p className="flex items-center gap-1 text-[10px] text-gray-400 mt-0.5">
+                        <Users size={10} strokeWidth={2} />
+                        共有中
+                      </p>
+                    )}
+                  </div>
+                  <ChevronRight size={16} className="text-gray-300 flex-shrink-0" strokeWidth={2.5} />
+                </button>
+                {i < myLists.length - 1 && <div className="ml-16 h-px bg-gray-100" />}
+              </div>
             ))}
           </div>
         )}
