@@ -84,7 +84,7 @@ export default function HomePage() {
             <div className={myLists.length > 0 ? 'border-t border-gray-100' : ''}>
               <button
                 onClick={() => setShowCreateList(true)}
-                className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-pink-50 transition text-left"
+                className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-gray-50 transition text-left"
               >
                 <span className="w-9 h-9 flex items-center justify-center rounded-full text-lg flex-shrink-0" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>+</span>
                 <span className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>新しいリストを作成</span>

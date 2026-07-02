@@ -59,7 +59,7 @@ export default function MyPage() {
         {/* My Lists */}
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-bold text-gray-700">マイリスト</h2>
-          <button onClick={() => setShowCreate(true)} className="text-xs text-pink-500 font-medium">+ 新規作成</button>
+          <button onClick={() => setShowCreate(true)} className="text-xs font-medium" style={{ color: 'var(--color-primary)' }}>+ 新規作成</button>
         </div>
 
         {myLists.length === 0 ? (

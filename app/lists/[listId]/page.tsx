@@ -13,16 +13,6 @@ import Link from 'next/link';
 import { ChevronLeft, ChevronRight, MoreHorizontal, Plus, Sparkles } from 'lucide-react';
 import ListIcon from '@/components/lists/ListIcon';
 
-const COLOR_BG: Record<string, string> = {
-  pink: 'from-pink-400 to-pink-300',
-  purple: 'from-purple-400 to-purple-300',
-  blue: 'from-blue-400 to-blue-300',
-  green: 'from-green-400 to-green-300',
-  yellow: 'from-yellow-400 to-yellow-300',
-  orange: 'from-orange-400 to-orange-300',
-  red: 'from-red-400 to-red-300',
-  gray: 'from-gray-400 to-gray-300',
-};
 
 export default function ListDetailPage() {
   const { listId } = useParams<{ listId: string }>();
@@ -68,7 +58,6 @@ export default function ListDetailPage() {
   const canEdit = role === 'owner' || role === 'editor';
   const filtered = filterSource ? items.filter((i) => i.sourceType === filterSource) : items;
   const sources = [...new Set(items.map((i) => i.sourceType))];
-  const gradient = list ? COLOR_BG[list.color] || 'from-pink-400 to-pink-300' : 'from-pink-400 to-pink-300';
 
   async function handleDelete() {
     if (!confirm('このリストを削除しますか？')) return;
@@ -79,7 +68,7 @@ export default function ListDetailPage() {
   return (
     <AppShell>
       {/* Header */}
-      <div className={`bg-gradient-to-r ${gradient} px-4 pt-12 pb-6`}>
+      <div className="px-4 pt-12 pb-6" style={{ backgroundColor: 'var(--color-primary)' }}>
         <div className="flex items-center gap-3 mb-3">
           <button
             onClick={() => list?.parentId ? router.push(`/lists/${list.parentId}`) : router.push('/home')}

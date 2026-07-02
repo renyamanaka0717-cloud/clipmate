@@ -19,23 +19,20 @@ interface Props {
   listTitle?: string;
 }
 
-type SnsConfig = {
-  Icon: React.ComponentType<{ size?: number; color?: string }>;
-  bg: string;
-};
+type SnsIcon = React.ComponentType<{ size?: number }>;
 
-const SNS: Record<SourceType, SnsConfig> = {
-  instagram: { Icon: SiInstagram, bg: '#C13584' },
-  tiktok:    { Icon: SiTiktok,    bg: '#010101' },
-  threads:   { Icon: SiThreads,   bg: '#101010' },
-  youtube:   { Icon: SiYoutube,   bg: '#FF0000' },
-  pinterest: { Icon: SiPinterest, bg: '#E60023' },
-  x:         { Icon: SiX,         bg: '#101010' },
-  other:     { Icon: Link2,       bg: '#9CA3AF' },
+const SNS: Record<SourceType, SnsIcon> = {
+  instagram: SiInstagram,
+  tiktok:    SiTiktok,
+  threads:   SiThreads,
+  youtube:   SiYoutube,
+  pinterest: SiPinterest,
+  x:         SiX,
+  other:     Link2,
 };
 
 export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
-  const { Icon, bg } = SNS[item.sourceType] ?? SNS.other;
+  const Icon = SNS[item.sourceType] ?? SNS.other;
 
   return (
     <Link href={`/items/${item.id}`}>
@@ -49,9 +46,9 @@ export default function ItemCard({ item, isNew, showList, listTitle }: Props) {
         {/* SNS Icon */}
         <div
           className="flex-shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center self-center"
-          style={{ backgroundColor: bg + '18' }}
+          style={{ backgroundColor: 'var(--color-primary-pale)', color: 'var(--color-primary)' }}
         >
-          <Icon size={22} color={bg} />
+          <Icon size={22} />
         </div>
 
         {/* Content */}

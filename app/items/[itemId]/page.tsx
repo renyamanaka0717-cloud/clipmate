@@ -89,7 +89,7 @@ export default function ItemDetailPage() {
     return (
       <AppShell>
         <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-4 border-pink-400 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--color-primary)', borderTopColor: 'transparent' }} />
         </div>
       </AppShell>
     );
@@ -188,8 +188,8 @@ export default function ItemDetailPage() {
 
         {/* Location */}
         {item.locationName && (
-          <div className="bg-blue-50 rounded-2xl p-3 mb-4">
-            <p className="flex items-center gap-1 text-xs text-blue-600 font-medium mb-1">
+          <div className="rounded-2xl p-3 mb-4" style={{ backgroundColor: 'var(--color-primary-pale)' }}>
+            <p className="flex items-center gap-1 text-xs font-medium mb-1" style={{ color: 'var(--color-primary)' }}>
               <MapPin size={12} strokeWidth={2} />
               場所
             </p>
@@ -197,7 +197,7 @@ export default function ItemDetailPage() {
             {item.locationArea && <p className="text-xs text-gray-500">{item.locationArea}</p>}
             {item.locationAddress && <p className="text-xs text-gray-500">{item.locationAddress}</p>}
             {item.locationMapUrl && (
-              <a href={item.locationMapUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-xs text-blue-600 font-medium">
+              <a href={item.locationMapUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-xs font-medium" style={{ color: 'var(--color-primary)' }}>
                 <Map size={11} strokeWidth={2} />
                 地図で見る
               </a>
@@ -254,7 +254,7 @@ export default function ItemDetailPage() {
               onChange={(e) => setCommentText(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleAddComment())}
               placeholder="コメントを追加..."
-              className="flex-1 px-3 py-2 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none focus:border-pink-300 transition"
+              className="flex-1 px-3 py-2 bg-gray-50 rounded-2xl border border-gray-200 text-sm outline-none transition themed-input"
             />
             <button
               onClick={handleAddComment}
